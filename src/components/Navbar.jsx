@@ -4,6 +4,7 @@ import { useScrollPosition } from '../hooks/usePortfolio';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import logo from '../assets/Hodal_Logo_No_Bg.png';
+import { Link } from 'react-router-dom';
 
 const Navbar = ({ activeSection, setActiveSection }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -52,9 +53,11 @@ const Navbar = ({ activeSection, setActiveSection }) => {
           : 'bg-transparent'
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
+         <Link to="/">  
           <div className="flex items-baseline gap-0.5">
            <img src={logo} alt="Muheto Hodal" />
           </div>
+         </Link>
           <div className="hidden md:flex items-center gap-1">
             {sections.map((section) => (
               <button
