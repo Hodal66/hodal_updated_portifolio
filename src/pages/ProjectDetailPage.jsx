@@ -67,7 +67,7 @@ const ProjectDetailPage = () => {
             <span className="text-xl">←</span> {t('nav.backToPortfolio')}
           </Link>
           <div className="flex items-baseline gap-0.5">
-            <span className="text-xl font-black gradient-text">{config.studentId}</span>
+            <span className="text-xl font-black gradient-text">Hodal Muheto</span>
             <span className={`font-light ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>.f25</span>
           </div>
         </div>
