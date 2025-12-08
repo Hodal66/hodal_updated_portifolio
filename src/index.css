@@ -1,0 +1,175 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base Styles */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Dark mode (default) */
+  .dark body {
+    @apply bg-dark-950 text-gray-100 antialiased;
+  }
+
+  /* Light mode */
+  .light body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+  }
+
+  /* Custom Scrollbar - Dark */
+  .dark ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .dark ::-webkit-scrollbar-track {
+    @apply bg-dark-950;
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    @apply bg-primary-500 rounded;
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary-600;
+  }
+
+  /* Custom Scrollbar - Light */
+  .light ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .light ::-webkit-scrollbar-track {
+    @apply bg-gray-100;
+  }
+
+  .light ::-webkit-scrollbar-thumb {
+    @apply bg-primary-500 rounded;
+  }
+
+  .light ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary-600;
+  }
+}
+
+/* Component Classes */
+@layer components {
+  .btn-primary {
+    @apply px-6 py-3 bg-gradient-to-r from-primary-500 to-cyan-500 rounded-xl font-semibold text-white 
+           transition-all duration-300 hover:shadow-lg hover:shadow-primary-500/25 hover:-translate-y-0.5;
+  }
+
+  /* Dark mode secondary button */
+  .dark .btn-secondary {
+    @apply px-6 py-3 border-2 border-white/20 rounded-xl font-semibold text-white 
+           transition-all duration-300 hover:border-primary-500/50 hover:bg-primary-500/5;
+  }
+
+  /* Light mode secondary button */
+  .light .btn-secondary {
+    @apply px-6 py-3 border-2 border-gray-300 rounded-xl font-semibold text-gray-700 
+           transition-all duration-300 hover:border-primary-500 hover:bg-primary-500/5;
+  }
+
+  /* Dark mode card */
+  .dark .card {
+    @apply p-6 bg-gradient-to-br from-white/[0.03] to-transparent border border-white/5 rounded-2xl
+           transition-all duration-500 hover:border-primary-500/30;
+  }
+
+  /* Light mode card */
+  .light .card {
+    @apply p-6 bg-white border border-gray-200 rounded-2xl shadow-sm
+           transition-all duration-500 hover:border-primary-500/50 hover:shadow-md;
+  }
+
+  .card-hover {
+    @apply hover:-translate-y-2 hover:shadow-xl hover:shadow-primary-500/10;
+  }
+
+  /* Dark mode section title */
+  .dark .section-title {
+    @apply text-3xl md:text-4xl lg:text-5xl font-extrabold bg-gradient-to-r from-white to-gray-400 
+           bg-clip-text text-transparent;
+  }
+
+  /* Light mode section title */
+  .light .section-title {
+    @apply text-3xl md:text-4xl lg:text-5xl font-extrabold bg-gradient-to-r from-gray-900 to-gray-600 
+           bg-clip-text text-transparent;
+  }
+
+  .section-subtitle {
+    @apply text-primary-400 font-mono text-sm tracking-wider;
+  }
+
+  /* Dark mode tech badge */
+  .dark .tech-badge {
+    @apply px-3 py-1.5 bg-gradient-to-r from-primary-500/15 to-cyan-500/10 border border-primary-500/25 
+           rounded-lg text-primary-300 text-sm font-medium;
+  }
+
+  /* Light mode tech badge */
+  .light .tech-badge {
+    @apply px-3 py-1.5 bg-gradient-to-r from-primary-500/10 to-cyan-500/5 border border-primary-500/30 
+           rounded-lg text-primary-600 text-sm font-medium;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary-400 to-cyan-400 bg-clip-text text-transparent;
+  }
+
+  .nav-link {
+    @apply px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300;
+  }
+
+  .nav-link-active {
+    @apply bg-primary-500/10 text-primary-400;
+  }
+
+  /* Dark mode inactive nav link */
+  .dark .nav-link-inactive {
+    @apply text-gray-400 hover:text-white hover:bg-white/5;
+  }
+
+  /* Light mode inactive nav link */
+  .light .nav-link-inactive {
+    @apply text-gray-600 hover:text-gray-900 hover:bg-gray-100;
+  }
+}
+
+/* Utility Classes */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Dark mode grid */
+  .dark .bg-grid {
+    background-image: linear-gradient(rgba(20,184,166,0.03) 1px, transparent 1px), 
+                      linear-gradient(90deg, rgba(20,184,166,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  /* Light mode grid */
+  .light .bg-grid {
+    background-image: linear-gradient(rgba(20,184,166,0.05) 1px, transparent 1px), 
+                      linear-gradient(90deg, rgba(20,184,166,0.05) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
