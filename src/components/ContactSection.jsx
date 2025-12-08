@@ -274,9 +274,8 @@ const ContactSection = () => {
                 ? 'bg-gradient-to-br from-primary-500/10 to-violet-500/10 border border-primary-500/20'
                 : 'bg-gradient-to-br from-primary-500/10 to-violet-500/10 border border-primary-500/30'
             }`}>
-              <span className={`text-sm block mb-2 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{t('contact.itProject')}</span>
-              <span className="block text-3xl sm:text-4xl font-black gradient-text mb-2">{t('nav.studentId')}: {config.studentId}</span>
-              <span className={isDark ? 'text-gray-400' : 'text-gray-500'}>{t('about.domain')}: {config.domain}</span>
+              <span className={`text-sm block mb-2 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{t('Contact Number')}</span>
+              <span className="block text-3xl sm:text-4xl font-black gradient-text mb-2">{t('Tel : +250 782 439 775')}</span>
             </div>
           </div>
 
