@@ -10,7 +10,6 @@ const ContactForm = () => {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
-    subject: '',
     message: ''
   });
   const [errors, setErrors] = useState({});
@@ -150,27 +149,6 @@ const ContactForm = () => {
         />
         {errors.email && <p className="mt-1 text-sm text-red-400">{errors.email}</p>}
       </div>
-
-      {/* Subject */}
-      <div>
-        <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-          {t('contact.subject')} <span className="text-red-400">*</span>
-        </label>
-        <input
-          type="text"
-          name="subject"
-          value={formData.subject}
-          onChange={handleChange}
-          placeholder={t('contact.subjectPlaceholder')}
-          className={`w-full px-4 py-3 rounded-xl transition-all duration-300 outline-none ${
-            isDark
-              ? 'bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-primary-500/50 focus:bg-white/10'
-              : 'bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:bg-white'
-          } ${errors.subject ? 'border-red-500/50' : ''}`}
-        />
-        {errors.subject && <p className="mt-1 text-sm text-red-400">{errors.subject}</p>}
-      </div>
-
       {/* Message */}
       <div>
         <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
