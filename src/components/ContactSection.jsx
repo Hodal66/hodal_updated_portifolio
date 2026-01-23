@@ -1,3 +1,4 @@
+import { Icon } from '@iconify/react';
 import React, { useState } from 'react';
 import { config, contactItems } from '../data/config';
 import { useIsLoaded } from '../hooks/usePortfolio';
@@ -27,10 +28,6 @@ const ContactForm = () => {
       newErrors.email = t('contact.required');
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = t('contact.invalidEmail');
-    }
-
-    if (!formData.subject.trim()) {
-      newErrors.subject = t('contact.required');
     }
 
     if (!formData.message.trim()) {
@@ -66,7 +63,7 @@ const ContactForm = () => {
       console.log('Form submitted:', formData);
       
       setSubmitStatus('success');
-      setFormData({ fullName: '', email: '', subject: '', message: '' });
+      setFormData({ fullName: '', email: '', message: '' });
     } catch (error) {
       console.error('Form submission error:', error);
       setSubmitStatus('error');
@@ -237,7 +234,7 @@ const ContactSection = () => {
                   }`}
                 >
                   <span className="w-14 h-14 bg-gradient-to-br from-primary-500/20 to-cyan-500/20 rounded-xl flex items-center justify-center text-2xl shrink-0 group-hover:scale-110 transition-transform">
-                    {item.icon}
+                    <Icon icon={item.icon} className="w-8 h-8 text-primary-500" />
                   </span>
                   <div>
                     <span className={`text-sm block ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{item.label}</span>

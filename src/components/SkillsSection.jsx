@@ -1,3 +1,4 @@
+import { Icon } from '@iconify/react';
 import React from 'react';
 import { skills } from '../data/config';
 import { useIsLoaded } from '../hooks/usePortfolio';
@@ -24,8 +25,8 @@ const SkillsSection = () => {
           {Object.entries(skills).map(([category, data], idx) => (
             <div key={idx} className="card card-hover p-6 sm:p-8">
               <div className="flex items-center gap-4 mb-6">
-                <span className={`w-14 h-14 bg-gradient-to-br ${data.gradient} rounded-xl flex items-center justify-center text-2xl shadow-lg`}>
-                  {data.icon}
+                <span className={`w-14 h-14 bg-gradient-to-br ${data.gradient} rounded-xl flex items-center justify-center text-white text-2xl shadow-lg`}>
+                  <Icon icon={data.icon} className="w-8 h-8" />
                 </span>
                 <h3 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{t(`skills.${skillKeys[idx]}`)}</h3>
               </div>

@@ -3,8 +3,9 @@ import { config, sections } from '../data/config';
 import { useScrollPosition } from '../hooks/usePortfolio';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import logo from '../assets/Hodal_Logo_No_Bg.png';
+import logo from '../assets/HodalTechLogo.jpeg';
 import { Link } from 'react-router-dom';
+import Clock from './Clock';
 
 const Navbar = ({ activeSection, setActiveSection }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -55,7 +56,7 @@ const Navbar = ({ activeSection, setActiveSection }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
          <Link to="/">  
           <div className="flex items-baseline gap-0.5">
-           <img src={logo} alt="Muheto Hodal" />
+           <img src={logo} alt="Muheto Hodal" className="h-10 w-auto" />
           </div>
          </Link>
           <div className="hidden md:flex items-center gap-1">
@@ -71,6 +72,7 @@ const Navbar = ({ activeSection, setActiveSection }) => {
           </div>
 
           <div className="hidden md:flex items-center gap-3">
+             <Clock />
             <div className="relative" ref={langDropdownRef}>
               <button
                 onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
@@ -126,10 +128,10 @@ const Navbar = ({ activeSection, setActiveSection }) => {
               )}
             </button>
 
-            <a href={`https://${config.website}`} target="_blank" rel="noopener noreferrer"
+            <Link to="/login" 
               className="px-5 py-2.5 bg-gradient-to-r from-primary-500 to-cyan-500 rounded-xl text-sm font-semibold text-white hover:shadow-lg hover:shadow-primary-500/25 transition-all duration-300">
-              {t('nav.visitPortfolio')}
-            </a>
+              {t('nav.login')}
+            </Link>
           </div>
 
           <button
@@ -213,13 +215,13 @@ const Navbar = ({ activeSection, setActiveSection }) => {
           </div>
 
           <div className="mt-auto pt-6">
-            <a href={`https://${config.website}`} target="_blank" rel="noopener noreferrer"
+            <Link to="/login" 
               className="block w-full py-3 bg-gradient-to-r from-primary-500 to-cyan-500 rounded-xl text-center font-semibold text-white">
-              {t('nav.visitPortfolio')}
-            </a>
+              {t('nav.login')}
+            </Link>
             <div className={`mt-4 p-4 rounded-xl text-center ${isDark ? 'bg-primary-500/10 border border-primary-500/20' : 'bg-primary-50 border border-primary-200'}`}>
-              <span className={`text-xs block ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{t('nav.studentId')}</span>
-              <span className="text-primary-400 font-bold text-xl">{config.studentId}</span>
+              <span className={`text-xs block ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{t('about.domain')}</span>
+              <span className="text-primary-400 font-bold text-lg">{config.domain}</span>
             </div>
           </div>
         </div>

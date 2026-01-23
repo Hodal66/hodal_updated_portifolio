@@ -1,3 +1,4 @@
+import { Icon } from '@iconify/react';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { projects } from '../data/config';
@@ -42,8 +43,8 @@ const ProjectCard = ({ project }) => {
       <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${project.gradient}`} />
 
       <div className="flex items-start justify-between mb-5">
-        <div className={`w-16 h-16 sm:w-18 sm:h-18 bg-gradient-to-br ${project.gradient} rounded-xl flex items-center justify-center text-2xl sm:text-3xl shadow-lg`}>
-          {project.image}
+        <div className={`w-16 h-16 sm:w-18 sm:h-18 bg-gradient-to-br ${project.gradient} rounded-xl flex items-center justify-center text-white text-2xl sm:text-3xl shadow-lg`}>
+          <Icon icon={project.image} className="w-8 h-8 sm:w-10 sm:h-10" />
         </div>
         <span className={`px-3 py-1.5 rounded-full text-xs font-semibold border ${getStatusClasses()}`}>
           {getStatusText()}

@@ -1,3 +1,4 @@
+import { Icon } from '@iconify/react';
 import React from 'react';
 import { config, education, certifications } from '../data/config';
 import { useIsLoaded } from '../hooks/usePortfolio';
@@ -22,7 +23,9 @@ const AboutSection = () => {
           <div className="space-y-6">
             <div className="card p-6 sm:p-8">
               <h3 className={`text-xl font-bold mb-4 flex items-center gap-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                <span className="w-10 h-10 bg-primary-500/20 rounded-xl flex items-center justify-center">👨‍💻</span>
+                <span className="w-10 h-10 bg-primary-500/20 rounded-xl flex items-center justify-center">
+                  <Icon icon="fluent:person-24-filled" className="w-6 h-6 text-primary-500" />
+                </span>
                 {t('about.whoIAm')}
               </h3>
               <p className={`leading-relaxed mb-4 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{t('about.bio1')}</p>
@@ -31,14 +34,18 @@ const AboutSection = () => {
 
             <div className="card p-6 sm:p-8">
               <h3 className={`text-xl font-bold mb-4 flex items-center gap-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                <span className="w-10 h-10 bg-violet-500/20 rounded-xl flex items-center justify-center">🏆</span>
+                <span className="w-10 h-10 bg-violet-500/20 rounded-xl flex items-center justify-center">
+                  <Icon icon="fluent:trophy-24-filled" className="w-6 h-6 text-violet-500" />
+                </span>
                 {t('about.certifications')}
               </h3>
               <div className="space-y-3">
                 {certifications.map((cert, i) => (
                   <div key={i} className={`flex items-center justify-between p-3 rounded-xl ${isDark ? 'bg-white/5' : 'bg-gray-50'}`}>
                     <div className="flex items-center gap-3">
-                      <span className="text-xl">{cert.icon}</span>
+                      <span className="text-xl">
+                        <Icon icon={cert.icon} className="w-5 h-5" />
+                      </span>
                       <div>
                         <span className={`font-medium block text-sm sm:text-base ${isDark ? 'text-white' : 'text-gray-900'}`}>{cert.name}</span>
                         <span className={`text-xs sm:text-sm ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{cert.issuer}</span>
@@ -58,7 +65,6 @@ const AboutSection = () => {
                 {[
                   { label: t('about.location'), value: config.location },
                   { label: t('about.email'), value: config.email },
-                  { label: t('nav.studentId'), value: config.studentId },
                   { label: t('about.domain'), value: config.domain },
                 ].map((item, i) => (
                   <div key={i}>
@@ -71,7 +77,9 @@ const AboutSection = () => {
 
             <div className="card p-6 sm:p-8">
               <h3 className={`text-xl font-bold mb-6 flex items-center gap-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                <span className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">🎓</span>
+                <span className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                  <Icon icon="fluent:hat-graduation-24-filled" className="w-6 h-6 text-blue-500" />
+                </span>
                 {t('about.education')}
               </h3>
               <div className="space-y-6">

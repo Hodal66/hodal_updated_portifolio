@@ -1,3 +1,4 @@
+import { Icon } from '@iconify/react';
 import React from 'react';
 import { config } from '../data/config';
 import { useTheme } from '../contexts/ThemeContext';
@@ -8,9 +9,9 @@ const Footer = () => {
   const { t } = useLanguage();
 
   const socialLinks = [
-    { icon: '🐙', link: `https://${config.github}`, label: 'GitHub' },
-    { icon: '💼', link: `https://${config.linkedin}`, label: 'LinkedIn' },
-    { icon: '🌐', link: `https://${config.website}`, label: 'Website' },
+    { icon: 'simple-icons:github', link: `https://${config.github}`, label: 'GitHub' },
+    { icon: 'simple-icons:linkedin', link: `https://${config.linkedin}`, label: 'LinkedIn' },
+    { icon: 'fluent:globe-24-filled', link: `https://${config.website}`, label: 'Website' },
   ];
 
   return (
@@ -23,8 +24,8 @@ const Footer = () => {
           </div>
 
           <div>
-            <p className={`text-sm ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>© 2025 {config.name}. {t('footer.rights')}</p>
-            <p className={`text-xs mt-1 ${isDark ? 'text-gray-600' : 'text-gray-400'}`}>{t('nav.studentId')}: {config.studentId} | {t('about.domain')}: {config.domain}</p>
+            <p className={`text-sm ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>© {new Date().getFullYear()} {config.name}. {t('footer.rights')}</p>
+            <p className={`text-xs mt-1 ${isDark ? 'text-gray-600' : 'text-gray-400'}`}>{t('about.domain')}: {config.domain}</p>
           </div>
 
           <div className="flex gap-3">
@@ -36,10 +37,10 @@ const Footer = () => {
                 rel="noopener noreferrer"
                 aria-label={social.label}
                 className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${
-                  isDark ? 'bg-white/5 hover:bg-primary-500/20' : 'bg-gray-100 hover:bg-primary-500/20'
+                  isDark ? 'bg-white/5 hover:bg-primary-500/20 text-gray-400 hover:text-primary-400' : 'bg-gray-100 hover:bg-primary-500/20 text-gray-600 hover:text-primary-600'
                 }`}
               >
-                {social.icon}
+                <Icon icon={social.icon} className="w-5 h-5" />
               </a>
             ))}
           </div>

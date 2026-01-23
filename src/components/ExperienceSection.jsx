@@ -1,3 +1,4 @@
+import { Icon } from '@iconify/react';
 import React from 'react';
 import { experience } from '../data/config';
 import { useIsLoaded } from '../hooks/usePortfolio';
@@ -32,7 +33,10 @@ const ExperienceSection = () => {
                   <span className={`px-3 py-1.5 rounded-full text-sm ${isDark ? 'bg-white/5 text-gray-400' : 'bg-gray-100 text-gray-500'}`}>
                     {exp.type}
                   </span>
-                  <span className={`text-sm ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>📍 {exp.location}</span>
+                  <span className={`flex items-center gap-1 text-sm ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                    <Icon icon="fluent:location-24-filled" className="w-4 h-4" />
+                    {exp.location}
+                  </span>
                 </div>
 
                 <h3 className={`text-xl sm:text-2xl font-bold mb-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>{exp.role}</h3>
@@ -44,7 +48,9 @@ const ExperienceSection = () => {
                   <div className="grid sm:grid-cols-2 gap-2">
                     {exp.achievements.map((achievement, i) => (
                       <div key={i} className="flex items-start gap-2 text-sm">
-                        <span className="text-primary-400 mt-0.5">✓</span>
+                        <span className="text-primary-400 mt-0.5">
+                          <Icon icon="fluent:checkmark-24-filled" className="w-4 h-4" />
+                        </span>
                         <span className={isDark ? 'text-gray-400' : 'text-gray-600'}>{achievement}</span>
                       </div>
                     ))}

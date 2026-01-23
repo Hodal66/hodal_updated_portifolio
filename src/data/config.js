@@ -1,7 +1,7 @@
-// Portfolio Configuration - Muheto Hodal (29049)
+// Portfolio Configuration - Muheto Hodal
+// Using Iconify icons instead of emojis
 
 export const config = {
-  studentId: '29049',
   name: 'Muheto Hodal',
   title: 'Full-Stack Developer & UI/UX Engineer',
   tagline: 'Crafting Digital Experiences That Matter',
@@ -13,7 +13,9 @@ export const config = {
   yearsExp: '3+',
   projectsCompleted: '15+',
   technologies: '20+',
-  clients: '10+'
+  clients: '10+',
+  // Removing studentId as requested
+  domain: 'Software Engineering'
 };
 
 export const techStack = ['React', 'TypeScript', 'Node.js', 'Spring Boot', 'PostgreSQL', 'MongoDB'];
@@ -27,7 +29,7 @@ export const stats = [
 
 export const skills = {
   'Frontend Development': {
-    icon: '🎨',
+    icon: 'fluent:design-ideas-24-filled',
     gradient: 'from-violet-500 to-purple-600',
     items: [
       { name: 'React.js', level: 95 },
@@ -38,7 +40,7 @@ export const skills = {
     ]
   },
   'Backend Development': {
-    icon: '⚙️',
+    icon: 'fluent:server-24-filled',
     gradient: 'from-emerald-500 to-teal-600',
     items: [
       { name: 'Node.js', level: 90 },
@@ -49,7 +51,7 @@ export const skills = {
     ]
   },
   'Database & Cloud': {
-    icon: '☁️',
+    icon: 'fluent:database-24-filled',
     gradient: 'from-blue-500 to-cyan-600',
     items: [
       { name: 'PostgreSQL', level: 88 },
@@ -60,7 +62,7 @@ export const skills = {
     ]
   },
   'DevOps & Tools': {
-    icon: '🛠️',
+    icon: 'fluent:wrench-24-filled',
     gradient: 'from-orange-500 to-red-600',
     items: [
       { name: 'Git & GitHub', level: 95 },
@@ -90,7 +92,7 @@ export const projects = [
 This project was born from identifying a gap in Rwanda's professional development ecosystem. University students often struggle to find experienced mentors who can guide them through their career journey. IHUZE bridges this gap by providing a structured, technology-driven approach to mentorship.`,
     challenge: `The main challenges included building a scalable matching algorithm that considers multiple factors (industry, skills, availability, location), implementing real-time communication without compromising performance, and integrating Rwanda's complete administrative hierarchy (Provinces → Districts → Sectors → Cells → Villages) for location-based matching.`,
     solution: `I architected a microservices-ready backend with Spring Boot, implementing JWT-based authentication with refresh token rotation for security. The frontend uses React with Redux for state management, connected via WebSocket for real-time features. The matching algorithm uses a weighted scoring system considering 12 different compatibility factors.`,
-    image: '🎓',
+    image: 'fluent:people-community-24-filled',
     gradient: 'from-indigo-600 to-violet-700',
     tech: ['Spring Boot', 'React', 'PostgreSQL', 'JWT Auth', 'WebSocket', 'Tailwind CSS', 'Redis', 'Docker'],
     architecture: [
@@ -142,7 +144,7 @@ This project was born from identifying a gap in Rwanda's professional developmen
 The project started as a need for a unified interface to manage multiple business operations. Instead of switching between different tools, this dashboard consolidates all essential functions into a single, intuitive interface.`,
     challenge: `The primary challenges were handling real-time data updates without overwhelming the UI, implementing complex data visualizations that remain performant with large datasets, and building a flexible theming system that could adapt to different brand requirements.`,
     solution: `I implemented a virtual scrolling system for large data tables, used React.memo and useMemo strategically to prevent unnecessary re-renders, and built a custom charting wrapper around Recharts with automatic data aggregation for performance. The theming system uses CSS custom properties with a context-based provider.`,
-    image: '📊',
+    image: 'fluent:board-24-filled',
     gradient: 'from-cyan-600 to-blue-700',
     tech: ['React', 'TypeScript', 'Redux Toolkit', 'Recharts', 'Material UI', 'REST API', 'Socket.io', 'Jest'],
     architecture: [
@@ -194,7 +196,7 @@ The project started as a need for a unified interface to manage multiple busines
 The environment was designed to mirror real-world corporate infrastructure, providing hands-on experience with enterprise-grade tools and security practices used by organizations worldwide.`,
     challenge: `Building a realistic enterprise environment with limited hardware resources required careful VM optimization. Integrating multiple security tools (pfSense, Wazuh, Suricata) while maintaining performance was challenging. Additionally, creating meaningful security rules and monitoring dashboards that provide actionable insights required extensive research.`,
     solution: `I implemented a resource-efficient VM allocation strategy, using nested virtualization where appropriate. Created custom integration scripts to correlate events across security tools. Developed a comprehensive documentation system with automated topology generation.`,
-    image: '🛡️',
+    image: 'fluent:shield-check-24-filled',
     gradient: 'from-emerald-600 to-teal-700',
     tech: ['pfSense', 'Windows Server 2022', 'Active Directory', 'Wazuh SIEM', 'Suricata IDS', 'OpenVPN', 'NTOPng', 'VMware'],
     architecture: [
@@ -245,7 +247,7 @@ The environment was designed to mirror real-world corporate infrastructure, prov
 The service handles the complexity of Google's API, rate limits, and authentication, exposing a simple REST interface that any application can consume.`,
     challenge: `Google's API rate limits required implementing intelligent request queuing. Handling large spreadsheets (10,000+ rows) without timeouts needed streaming approaches. Maintaining data consistency during concurrent updates from multiple sources was complex.`,
     solution: `I implemented Bull Queue with Redis for request management, used streaming reads/writes for large datasets, and implemented optimistic locking with version tracking for concurrent updates. The service includes automatic retry with exponential backoff.`,
-    image: '📑',
+    image: 'fluent:table-simple-24-filled',
     gradient: 'from-green-600 to-emerald-700',
     tech: ['Node.js', 'Express', 'Google APIs', 'OAuth 2.0', 'Redis', 'Bull Queue', 'Jest', 'Docker'],
     architecture: [
@@ -296,7 +298,7 @@ The service handles the complexity of Google's API, rate limits, and authenticat
 Built with performance and user experience in mind, the application uses server-side rendering for SEO optimization and implements lazy loading for optimal user experience.`,
     challenge: `Aggregating results from multiple travel APIs with different response formats and latencies required careful architecture. Implementing real-time pricing that remains consistent through the booking flow was complex. Building a search experience that feels instant despite API delays needed creative solutions.`,
     solution: `I implemented a unified adapter pattern for different travel APIs, used Redis for price caching with TTL-based invalidation, and built a progressive search UI that shows results as they arrive. Payment flow uses idempotency keys to prevent double bookings.`,
-    image: '✈️',
+    image: 'fluent:airplane-24-filled',
     gradient: 'from-sky-600 to-blue-700',
     tech: ['React', 'Next.js', 'Node.js', 'MongoDB', 'Stripe', 'Amadeus API', 'Redux', 'Redis'],
     architecture: [
@@ -339,15 +341,15 @@ Built with performance and user experience in mind, the application uses server-
     year: '2022-2023',
     duration: '10 months',
     status: 'Completed',
-    role: 'IT Facilitator & Lead Developer',
+    role: 'Lead Developer & Technical Trainer',
     team: 'Individual Project',
-    description: 'An educational platform developed for Timtom Aviation Ltd to provide computer science training and internship management for students.',
-    overview: `As IT Facilitator at Timtom Aviation Ltd, I developed and maintained this training portal that served as the primary resource for interns and students learning computer science fundamentals, UI/UX design, and web development.
+    description: 'An educational platform developed for Timtom Aviation Ltd to provide computer science training and internship management system.',
+    overview: `As Technical Trainer at Timtom Aviation Ltd, I developed and maintained this training portal that served as the primary resource for interns and trainees learning computer science fundamentals, UI/UX design, and web development.
 
 The platform includes interactive tutorials, progress tracking, and a project submission system for practical assessments. It was designed to provide a structured learning path from basics to job-ready skills.`,
     challenge: `Creating engaging learning content that caters to students with varying technical backgrounds was challenging. Building an assessment system that accurately evaluates practical skills (not just theory) required innovative approaches. Managing the platform while also teaching required efficient time management.`,
     solution: `I implemented adaptive learning paths that adjust based on assessment results, created practical project-based assessments with automated testing where possible, and built reusable content templates that reduced content creation time by 60%.`,
-    image: '🎯',
+    image: 'fluent:hat-graduation-24-filled',
     gradient: 'from-amber-600 to-orange-700',
     tech: ['HTML5', 'CSS3', 'JavaScript', 'PHP', 'MySQL', 'Bootstrap', 'jQuery', 'AJAX'],
     architecture: [
@@ -366,13 +368,13 @@ The platform includes interactive tutorials, progress tracking, and a project su
       { title: 'Communication', description: 'Discussion forums, direct messaging, and announcement system' }
     ],
     metrics: {
-      students: { value: '100+', label: 'Students Trained' },
+      students: { value: '100+', label: 'Trainees' },
       courses: { value: '12', label: 'Courses Created' },
       completion: { value: '85%', label: 'Completion Rate' },
       employment: { value: '72%', label: 'Employment Rate' }
     },
     lessons: [
-      'Student engagement requires varied content formats',
+      'Engagement requires varied content formats',
       'Practical assessments are more valuable than theoretical tests',
       'Regular feedback loops improve learning outcomes',
       'Building for education taught me patience and empathy'
@@ -399,25 +401,25 @@ export const experience = [
     ]
   },
   {
-    role: 'IT Facilitator & Web Development Instructor',
+    role: 'Technical Trainer & Web Developer',
     company: 'Timtom Aviation Ltd',
     period: 'Aug 2022 - Jun 2023',
     location: 'Kigali, Rwanda',
     type: 'Full-time',
     description: 'Managed IT infrastructure, taught UI/UX design and web development, and supervised computer science internships.',
     achievements: [
-      'Trained 100+ students in web development',
+      'Trained 100+ trainees in web development',
       'Developed comprehensive training curriculum',
       'Established internship program framework',
       'Improved IT infrastructure efficiency by 60%'
     ]
   },
   {
-    role: 'Student Developer',
+    role: 'Junior Software Engineer',
     company: 'Andela',
     period: '2021 - 2022',
     location: 'Remote',
-    type: 'Program',
+    type: 'Fellowship',
     description: 'Participated in intensive software development program focusing on JavaScript, React, and collaborative development practices.',
     achievements: [
       'Completed advanced React certification',
@@ -446,17 +448,17 @@ export const education = [
 ];
 
 export const certifications = [
-  { name: 'Andela Technical Leadership Program', issuer: 'Andela', year: '2022', icon: '🏆' },
-  { name: 'React Professional Developer', issuer: 'Meta', year: '2023', icon: '⚛️' },
-  { name: 'UI/UX Design Fundamentals', issuer: 'Google', year: '2022', icon: '🎨' },
-  { name: 'MongoDB Developer', issuer: 'MongoDB University', year: '2023', icon: '🍃' }
+  { name: 'Andela Technical Leadership Program', issuer: 'Andela', year: '2022', icon: 'simple-icons:andela' },
+  { name: 'React Professional Developer', issuer: 'Meta', year: '2023', icon: 'simple-icons:meta' },
+  { name: 'UI/UX Design Fundamentals', issuer: 'Google', year: '2022', icon: 'simple-icons:google' },
+  { name: 'MongoDB Developer', issuer: 'MongoDB University', year: '2023', icon: 'simple-icons:mongodb' }
 ];
 
 export const sections = ['home', 'about', 'skills', 'projects', 'experience', 'contact'];
 
 export const contactItems = [
-  { icon: '📧', label: 'Email', value: config.email, link: `mailto:${config.email}` },
-  { icon: '🌐', label: 'Website', value: config.website, link: `https://${config.website}` },
-  { icon: '💼', label: 'LinkedIn', value: 'Connect with me', link: `https://${config.linkedin}` },
-  { icon: '🐙', label: 'GitHub', value: 'View my code', link: `https://${config.github}` }
+  { icon: 'fluent:mail-24-filled', label: 'Email', value: config.email, link: `mailto:${config.email}` },
+  { icon: 'fluent:globe-24-filled', label: 'Website', value: config.website, link: `https://${config.website}` },
+  { icon: 'simple-icons:linkedin', label: 'LinkedIn', value: 'Connect with me', link: `https://${config.linkedin}` },
+  { icon: 'simple-icons:github', label: 'GitHub', value: 'View my code', link: `https://${config.github}` }
 ];
