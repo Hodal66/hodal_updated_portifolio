@@ -2,27 +2,61 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { LanguageProvider } from './contexts/LanguageContext';
+import { AuthProvider } from './contexts/AuthContext';
+import ErrorBoundary from './components/ErrorBoundary';
 import HomePage from './pages/HomePage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
+import OtpVerificationPage from './pages/auth/OtpVerificationPage';
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
+import ResetPasswordPage from './pages/auth/ResetPasswordPage';
+import AuthLayout from './layouts/AuthLayout';
+import DashboardLayout from './layouts/DashboardLayout';
+import DashboardOverview from './pages/dashboard/DashboardOverview';
+import DashboardUsers from './pages/dashboard/DashboardUsers';
+import DashboardProjects from './pages/dashboard/DashboardProjects';
+import DashboardSettings from './pages/dashboard/DashboardSettings';
+import DashboardNotifications from './pages/dashboard/DashboardNotifications';
+import DashboardAnalytics from './pages/dashboard/DashboardAnalytics';
+import DashboardFiles from './pages/dashboard/DashboardFiles';
 
 const App = () => {
   return (
-    <ThemeProvider>
-      <LanguageProvider>
-        <Router>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/project/:slug" element={<ProjectDetailPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          </Routes>
-        </Router>
-      </LanguageProvider>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <Router>
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/project/:slug" element={<ProjectDetailPage />} />
+
+                {/* Auth Routes */}
+                <Route element={<AuthLayout />}>
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
+                  <Route path="/verify-otp" element={<OtpVerificationPage />} />
+                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                  <Route path="/reset-password" element={<ResetPasswordPage />} />
+                </Route>
+
+                {/* Dashboard Routes — protection handled inside DashboardLayout */}
+                <Route path="/dashboard" element={<DashboardLayout />}>
+                  <Route index element={<DashboardOverview />} />
+                  <Route path="users" element={<DashboardUsers />} />
+                  <Route path="projects" element={<DashboardProjects />} />
+                  <Route path="analytics" element={<DashboardAnalytics />} />
+                  <Route path="notifications" element={<DashboardNotifications />} />
+                  <Route path="files" element={<DashboardFiles />} />
+                  <Route path="settings" element={<DashboardSettings />} />
+                </Route>
+              </Routes>
+            </Router>
+          </AuthProvider>
+        </LanguageProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 };
 

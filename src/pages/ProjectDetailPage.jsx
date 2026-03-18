@@ -1,20 +1,40 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { projects, config } from '../data/config';
+import { projects as staticProjects, config } from '../data/config';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { fetchProjects } from '../services/api';
 
 const ProjectDetailPage = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoadingContent, setIsLoadingContent] = useState(true);
+  const [allProjects, setAllProjects] = useState(staticProjects);
   const { isDark } = useTheme();
   const { t } = useLanguage();
 
-  const project = projects.find((p) => p.slug === slug);
-  const currentIndex = projects.findIndex((p) => p.slug === slug);
-  const prevProject = currentIndex > 0 ? projects[currentIndex - 1] : null;
-  const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex + 1] : null;
+  useEffect(() => {
+    const loadProjects = async () => {
+      try {
+        const data = await fetchProjects();
+        if (data && data.length > 0) {
+          setAllProjects(data);
+        }
+      } catch (error) {
+        // Fallback to static staticProjects if API fails
+        console.warn('Backend connection failed, falling back to static config.');
+      } finally {
+        setIsLoadingContent(false);
+      }
+    };
+    loadProjects();
+  }, []);
+
+  const project = allProjects.find((p) => p.slug === slug);
+  const currentIndex = allProjects.findIndex((p) => p.slug === slug);
+  const prevProject = currentIndex > 0 ? allProjects[currentIndex - 1] : null;
+  const nextProject = currentIndex < allProjects.length - 1 ? allProjects[currentIndex + 1] : null;
 
   useEffect(() => {
     setIsLoaded(false);
@@ -23,12 +43,20 @@ const ProjectDetailPage = () => {
     return () => clearTimeout(timer);
   }, [slug]);
 
+  if (isLoadingContent) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-dark-950 text-white' : 'bg-slate-50 text-slate-900'}`}>
+        <div className="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
   if (!project) {
     return (
-      <div className={`min-h-screen flex items-center justify-center flex-col gap-6 ${isDark ? 'bg-dark-950 text-white' : 'bg-gray-50 text-gray-900'}`}>
+      <div className={`min-h-screen flex items-center justify-center flex-col gap-6 ${isDark ? 'bg-dark-950 text-white' : 'bg-slate-50 text-slate-900'}`}>
         <span className="text-6xl">🔍</span>
         <h1 className="text-3xl font-bold">{t('projects.notFound')}</h1>
-        <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>{t('projects.notFoundDesc')}</p>
+        <p className={isDark ? 'text-gray-400' : 'text-slate-600'}>{t('projects.notFoundDesc')}</p>
         <button onClick={() => navigate('/')} className="btn-primary">{t('projects.backHome')}</button>
       </div>
     );
@@ -52,7 +80,7 @@ const ProjectDetailPage = () => {
   };
 
   return (
-    <div className={`min-h-screen font-sans ${isDark ? 'bg-dark-950 text-gray-100' : 'bg-gray-50 text-gray-900'}`}>
+    <div className={`min-h-screen font-sans ${isDark ? 'bg-dark-950 text-gray-100' : 'bg-slate-50 text-slate-900'}`}>
       {/* Background */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute inset-0 opacity-30 bg-grid" />
@@ -61,14 +89,14 @@ const ProjectDetailPage = () => {
       </div>
 
       {/* Navigation */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-xl border-b ${isDark ? 'bg-dark-950/90 border-white/5' : 'bg-white/90 border-gray-200'}`}>
+      <nav className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-xl border-b ${isDark ? 'bg-dark-950/90 border-white/5' : 'bg-white/90 border-slate-200'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
-          <Link to="/" className={`flex items-center gap-2 transition-colors text-sm font-medium ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}>
+          <Link to="/" className={`flex items-center gap-2 transition-colors text-sm font-medium ${isDark ? 'text-gray-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'}`}>
             <span className="text-xl">←</span> {t('nav.backToPortfolio')}
           </Link>
           <div className="flex items-baseline gap-0.5">
             <span className="text-xl font-black gradient-text">Hodal Muheto</span>
-            <span className={`font-light ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>.f25</span>
+            <span className={`font-light ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>.f25</span>
           </div>
         </div>
       </nav>
@@ -113,131 +141,152 @@ const ProjectDetailPage = () => {
         <section className="px-4 sm:px-6 py-12 sm:py-16">
           <div className="max-w-5xl mx-auto">
             {/* Metrics */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 -mt-12 sm:-mt-16 mb-12 sm:mb-16">
-              {Object.entries(project.metrics).map(([key, data], i) => (
-                <div key={i} className={`p-5 sm:p-6 rounded-2xl text-center backdrop-blur-md ${isDark ? 'bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10' : 'bg-white border border-gray-200 shadow-md'}`}>
-                  <span className="block text-2xl sm:text-3xl font-extrabold gradient-text mb-1">{data.value}</span>
-                  <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{data.label}</span>
-                </div>
-              ))}
-            </div>
+            {project.metrics && Object.keys(project.metrics).length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 -mt-12 sm:-mt-16 mb-12 sm:mb-16">
+                {Object.entries(project.metrics).map(([key, data], i) => {
+                  {/* Handling both Map/Object from DB and direct Object from Config */}
+                  const itemValue = data.value !== undefined ? data.value : data;
+                  const itemLabel = data.label !== undefined ? data.label : data;
+                  return (
+                    <div key={i} className={`p-5 sm:p-6 rounded-2xl text-center backdrop-blur-md ${isDark ? 'bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10' : 'bg-white border border-slate-200 shadow-md'}`}>
+                      <span className="block text-2xl sm:text-3xl font-extrabold gradient-text mb-1">{itemValue}</span>
+                      <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>{itemLabel}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
             {/* Two Column Layout */}
             <div className="grid lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2 space-y-8">
                 {/* Overview */}
-                <div>
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="w-12 h-12 bg-primary-500/15 rounded-xl flex items-center justify-center text-xl">📋</span>
-                    <h2 className={`text-xl sm:text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{t('projects.projectOverview')}</h2>
-                  </div>
-                  <div className="card p-6">
-                    <p className={`leading-relaxed whitespace-pre-line ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{project.overview}</p>
-                  </div>
-                </div>
-
-                {/* Challenge */}
-                <div>
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="w-12 h-12 bg-red-500/15 rounded-xl flex items-center justify-center text-xl">🎯</span>
-                    <h2 className={`text-xl sm:text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{t('projects.theChallenge')}</h2>
-                  </div>
-                  <div className={`p-6 rounded-2xl ${isDark ? 'bg-red-500/5 border border-red-500/15' : 'bg-red-50 border border-red-200'}`}>
-                    <p className={`leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{project.challenge}</p>
-                  </div>
-                </div>
-
-                {/* Solution */}
-                <div>
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="w-12 h-12 bg-green-500/15 rounded-xl flex items-center justify-center text-xl">💡</span>
-                    <h2 className={`text-xl sm:text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{t('projects.theSolution')}</h2>
-                  </div>
-                  <div className={`p-6 rounded-2xl ${isDark ? 'bg-green-500/5 border border-green-500/15' : 'bg-green-50 border border-green-200'}`}>
-                    <p className={`leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{project.solution}</p>
-                  </div>
-                </div>
-
-                {/* Features */}
-                <div>
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="w-12 h-12 bg-violet-500/15 rounded-xl flex items-center justify-center text-xl">✨</span>
-                    <h2 className={`text-xl sm:text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{t('projects.keyFeatures')}</h2>
-                  </div>
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    {project.features.map((feature, i) => (
-                      <div key={i} className={`p-5 rounded-xl transition-colors ${isDark ? 'card hover:border-primary-500/30' : 'bg-white border border-gray-200 hover:border-primary-500/50'}`}>
-                        <h4 className="text-primary-400 font-semibold mb-2 flex items-center gap-2">
-                          <span className="text-primary-500">▹</span>{feature.title}
-                        </h4>
-                        <p className={`text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{feature.description}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Lessons */}
-                <div>
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="w-12 h-12 bg-yellow-500/15 rounded-xl flex items-center justify-center text-xl">📚</span>
-                    <h2 className={`text-xl sm:text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{t('projects.lessonsLearned')}</h2>
-                  </div>
-                  <div className="card p-6">
-                    <ul className="space-y-4">
-                      {project.lessons.map((lesson, i) => (
-                        <li key={i} className={`flex items-start gap-4 leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                          <span className="w-6 h-6 bg-primary-500/20 rounded-full flex items-center justify-center text-xs text-primary-400 font-bold shrink-0 mt-0.5">{i + 1}</span>
-                          {lesson}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              {/* Sidebar */}
-              <div className="lg:col-span-1">
-                <div className={`sticky top-24 p-6 rounded-2xl space-y-8 ${isDark ? 'card' : 'bg-white border border-gray-200 shadow-sm'}`}>
-                  {/* Tech Stack */}
+                {project.overview && (
                   <div>
-                    <h3 className={`text-lg font-bold mb-4 flex items-center gap-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                      <span className="w-9 h-9 bg-blue-500/15 rounded-lg flex items-center justify-center">🛠️</span>
-                      {t('projects.techStack')}
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {project.tech.map((tech, i) => (
-                        <span key={i} className="tech-badge">{tech}</span>
-                      ))}
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="w-12 h-12 bg-primary-500/15 rounded-xl flex items-center justify-center text-xl">📋</span>
+                      <h2 className={`text-xl sm:text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t('projects.projectOverview')}</h2>
+                    </div>
+                    <div className="card p-6">
+                      <p className={`leading-relaxed whitespace-pre-line ${isDark ? 'text-gray-300' : 'text-slate-700'}`}>{project.overview}</p>
                     </div>
                   </div>
+                )}
 
-                  {/* Architecture */}
+                {/* Challenge */}
+                {project.challenge && (
                   <div>
-                    <h3 className={`text-lg font-bold mb-4 flex items-center gap-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                      <span className="w-9 h-9 bg-violet-500/15 rounded-lg flex items-center justify-center">🏗️</span>
-                      {t('projects.architecture')}
-                    </h3>
-                    <div className="space-y-3">
-                      {project.architecture.map((layer, i) => (
-                        <div key={i} className={`p-3 rounded-lg border-l-[3px] border-primary-500 ${isDark ? 'bg-white/[0.03]' : 'bg-gray-50'}`}>
-                          <span className="block text-primary-400 text-xs font-semibold uppercase tracking-wider mb-1">{layer.layer}</span>
-                          <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>{layer.tech}</span>
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="w-12 h-12 bg-red-500/15 rounded-xl flex items-center justify-center text-xl">🎯</span>
+                      <h2 className={`text-xl sm:text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t('projects.theChallenge')}</h2>
+                    </div>
+                    <div className={`p-6 rounded-2xl ${isDark ? 'bg-red-500/5 border border-red-500/15' : 'bg-red-50 border border-red-200'}`}>
+                      <p className={`leading-relaxed ${isDark ? 'text-gray-300' : 'text-slate-700'}`}>{project.challenge}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Solution */}
+                {project.solution && (
+                  <div>
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="w-12 h-12 bg-green-500/15 rounded-xl flex items-center justify-center text-xl">💡</span>
+                      <h2 className={`text-xl sm:text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t('projects.theSolution')}</h2>
+                    </div>
+                    <div className={`p-6 rounded-2xl ${isDark ? 'bg-green-500/5 border border-green-500/15' : 'bg-green-50 border border-green-200'}`}>
+                      <p className={`leading-relaxed ${isDark ? 'text-gray-300' : 'text-slate-700'}`}>{project.solution}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Features */}
+                {project.features && project.features.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="w-12 h-12 bg-violet-500/15 rounded-xl flex items-center justify-center text-xl">✨</span>
+                      <h2 className={`text-xl sm:text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t('projects.keyFeatures')}</h2>
+                    </div>
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      {project.features.map((feature, i) => (
+                        <div key={i} className={`p-5 rounded-xl transition-colors ${isDark ? 'card hover:border-primary-500/30' : 'bg-white border border-slate-200 hover:border-primary-500/50'}`}>
+                          <h4 className="text-primary-400 font-semibold mb-2 flex items-center gap-2">
+                            <span className="text-primary-500">▹</span>{feature.title}
+                          </h4>
+                          <p className={`text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>{feature.description}</p>
                         </div>
                       ))}
                     </div>
                   </div>
+                )}
+
+                {/* Lessons */}
+                {project.lessons && project.lessons.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="w-12 h-12 bg-yellow-500/15 rounded-xl flex items-center justify-center text-xl">📚</span>
+                      <h2 className={`text-xl sm:text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t('projects.lessonsLearned')}</h2>
+                    </div>
+                    <div className="card p-6">
+                      <ul className="space-y-4">
+                        {project.lessons.map((lesson, i) => (
+                          <li key={i} className={`flex items-start gap-4 leading-relaxed ${isDark ? 'text-gray-300' : 'text-slate-700'}`}>
+                            <span className="w-6 h-6 bg-primary-500/20 rounded-full flex items-center justify-center text-xs text-primary-400 font-bold shrink-0 mt-0.5">{i + 1}</span>
+                            {lesson}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Sidebar */}
+              <div className="lg:col-span-1">
+                <div className={`sticky top-24 p-6 rounded-2xl space-y-8 ${isDark ? 'card' : 'bg-white border border-slate-200 shadow-sm'}`}>
+                  {/* Tech Stack */}
+                  {project.tech && project.tech.length > 0 && (
+                    <div>
+                      <h3 className={`text-lg font-bold mb-4 flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                        <span className="w-9 h-9 bg-blue-500/15 rounded-lg flex items-center justify-center">🛠️</span>
+                        {t('projects.techStack')}
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
+                        {project.tech.map((tech, i) => (
+                          <span key={i} className="tech-badge">{tech}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Architecture */}
+                  {project.architecture && project.architecture.length > 0 && (
+                    <div>
+                      <h3 className={`text-lg font-bold mb-4 flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                        <span className="w-9 h-9 bg-violet-500/15 rounded-lg flex items-center justify-center">🏗️</span>
+                        {t('projects.architecture')}
+                      </h3>
+                      <div className="space-y-3">
+                        {project.architecture.map((layer, i) => (
+                          <div key={i} className={`p-3 rounded-lg border-l-[3px] border-primary-500 ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50'}`}>
+                            <span className="block text-primary-400 text-xs font-semibold uppercase tracking-wider mb-1">{layer.layer}</span>
+                            <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-slate-600'}`}>{layer.tech}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Links */}
                   {project.links && Object.keys(project.links).length > 0 && (
                     <div>
-                      <h3 className={`text-lg font-bold mb-4 flex items-center gap-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                      <h3 className={`text-lg font-bold mb-4 flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                         <span className="w-9 h-9 bg-emerald-500/15 rounded-lg flex items-center justify-center">🔗</span>
                         {t('projects.links')}
                       </h3>
                       <div className="space-y-2">
                         {Object.entries(project.links).map(([key, url], i) => (
                           <a key={i} href={url} target="_blank" rel="noopener noreferrer"
-                            className={`flex items-center justify-between p-3 rounded-lg transition-all ${isDark ? 'bg-white/[0.03] text-gray-300 hover:bg-primary-500/10 hover:text-primary-400' : 'bg-gray-50 text-gray-600 hover:bg-primary-500/10 hover:text-primary-600'}`}>
+                            className={`flex items-center justify-between p-3 rounded-lg transition-all ${isDark ? 'bg-white/[0.03] text-gray-300 hover:bg-primary-500/10 hover:text-primary-400' : 'bg-slate-50 text-slate-600 hover:bg-primary-500/10 hover:text-primary-600'}`}>
                             <span className="font-medium capitalize">
                               {key === 'github' ? '🐙 GitHub' : key === 'live' ? '🌐 Live Demo' : key === 'demo' ? '🎮 Demo' : key === 'docs' ? '📄 Documentation' : `🔗 ${key}`}
                             </span>
@@ -252,18 +301,18 @@ const ProjectDetailPage = () => {
             </div>
 
             {/* Navigation */}
-            <div className={`flex justify-between items-stretch gap-4 sm:gap-6 mt-12 sm:mt-16 pt-8 border-t flex-wrap ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
+            <div className={`flex justify-between items-stretch gap-4 sm:gap-6 mt-12 sm:mt-16 pt-8 border-t flex-wrap ${isDark ? 'border-white/10' : 'border-slate-200'}`}>
               {prevProject ? (
-                <Link to={`/project/${prevProject.slug}`} className={`flex-1 min-w-[250px] p-5 rounded-xl transition-colors ${isDark ? 'card hover:border-primary-500/30' : 'bg-white border border-gray-200 hover:border-primary-500/50'}`}>
-                  <span className={`text-sm block ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>← {t('projects.previousProject')}</span>
-                  <span className={`font-semibold text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>{prevProject.title}</span>
+                <Link to={`/project/${prevProject.slug}`} className={`flex-1 min-w-[250px] p-5 rounded-xl transition-colors ${isDark ? 'card hover:border-primary-500/30' : 'bg-white border border-slate-200 hover:border-primary-500/50'}`}>
+                  <span className={`text-sm block ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>← {t('projects.previousProject')}</span>
+                  <span className={`font-semibold text-lg ${isDark ? 'text-white' : 'text-slate-900'}`}>{prevProject.title}</span>
                 </Link>
               ) : <div className="flex-1" />}
 
               {nextProject ? (
-                <Link to={`/project/${nextProject.slug}`} className={`flex-1 min-w-[250px] p-5 rounded-xl text-right transition-colors ${isDark ? 'card hover:border-primary-500/30' : 'bg-white border border-gray-200 hover:border-primary-500/50'}`}>
-                  <span className={`text-sm block ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{t('projects.nextProject')} →</span>
-                  <span className={`font-semibold text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>{nextProject.title}</span>
+                <Link to={`/project/${nextProject.slug}`} className={`flex-1 min-w-[250px] p-5 rounded-xl text-right transition-colors ${isDark ? 'card hover:border-primary-500/30' : 'bg-white border border-slate-200 hover:border-primary-500/50'}`}>
+                  <span className={`text-sm block ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>{t('projects.nextProject')} →</span>
+                  <span className={`font-semibold text-lg ${isDark ? 'text-white' : 'text-slate-900'}`}>{nextProject.title}</span>
                 </Link>
               ) : <div className="flex-1" />}
             </div>
@@ -271,8 +320,8 @@ const ProjectDetailPage = () => {
         </section>
 
         {/* Footer */}
-        <footer className={`py-6 text-center ${isDark ? 'border-t border-white/5' : 'border-t border-gray-200'}`}>
-          <p className={`text-sm ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>© 2025 {config.name} • {t('nav.studentId')}: {config.studentId}</p>
+        <footer className={`py-6 text-center ${isDark ? 'border-t border-white/5' : 'border-t border-slate-200'}`}>
+          <p className={`text-sm ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>© 2025 {config.name} • {t('nav.studentId')}: {config.studentId}</p>
         </footer>
       </main>
     </div>

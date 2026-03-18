@@ -89,10 +89,10 @@ const ContactForm = () => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h3 className={`text-2xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+        <h3 className={`text-2xl font-bold mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
           {t('contact.successTitle')}
         </h3>
-        <p className={`mb-6 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+        <p className={`mb-6 ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>
           {t('contact.successMessage')}
         </p>
         <button
@@ -109,7 +109,7 @@ const ContactForm = () => {
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* Full Name */}
       <div>
-        <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+        <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-slate-700'}`}>
           {t('contact.fullName')} <span className="text-red-400">*</span>
         </label>
         <input
@@ -121,7 +121,7 @@ const ContactForm = () => {
           className={`w-full px-4 py-3 rounded-xl transition-all duration-300 outline-none ${
             isDark
               ? 'bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-primary-500/50 focus:bg-white/10'
-              : 'bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:bg-white'
+              : 'bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:border-primary-500 focus:bg-white'
           } ${errors.fullName ? 'border-red-500/50' : ''}`}
         />
         {errors.fullName && <p className="mt-1 text-sm text-red-400">{errors.fullName}</p>}
@@ -129,7 +129,7 @@ const ContactForm = () => {
 
       {/* Email */}
       <div>
-        <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+        <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-slate-700'}`}>
           {t('contact.emailAddress')} <span className="text-red-400">*</span>
         </label>
         <input
@@ -141,14 +141,14 @@ const ContactForm = () => {
           className={`w-full px-4 py-3 rounded-xl transition-all duration-300 outline-none ${
             isDark
               ? 'bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-primary-500/50 focus:bg-white/10'
-              : 'bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:bg-white'
+              : 'bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:border-primary-500 focus:bg-white'
           } ${errors.email ? 'border-red-500/50' : ''}`}
         />
         {errors.email && <p className="mt-1 text-sm text-red-400">{errors.email}</p>}
       </div>
       {/* Message */}
       <div>
-        <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+        <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-slate-700'}`}>
           {t('contact.message')} <span className="text-red-400">*</span>
         </label>
         <textarea
@@ -160,7 +160,7 @@ const ContactForm = () => {
           className={`w-full px-4 py-3 rounded-xl transition-all duration-300 outline-none resize-none ${
             isDark
               ? 'bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-primary-500/50 focus:bg-white/10'
-              : 'bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:bg-white'
+              : 'bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:border-primary-500 focus:bg-white'
           } ${errors.message ? 'border-red-500/50' : ''}`}
         />
         {errors.message && <p className="mt-1 text-sm text-red-400">{errors.message}</p>}
@@ -214,7 +214,7 @@ const ContactSection = () => {
         <div className="text-center mb-12">
           <span className="section-subtitle">{t('contact.subtitle')}</span>
           <h2 className="section-title mt-2 mb-4">{t('contact.title')}</h2>
-          <p className={`max-w-xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{t('contact.description')}</p>
+          <p className={`max-w-xl mx-auto ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>{t('contact.description')}</p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
@@ -230,15 +230,15 @@ const ContactSection = () => {
                   className={`flex items-center gap-4 p-5 rounded-xl group transition-all ${
                     isDark
                       ? 'bg-gradient-to-br from-white/[0.03] to-transparent border border-white/5 hover:border-primary-500/30'
-                      : 'bg-white border border-gray-200 shadow-sm hover:border-primary-500/50 hover:shadow-md'
+                      : 'bg-white border border-slate-200 shadow-sm hover:border-primary-500/50 hover:shadow-md'
                   }`}
                 >
                   <span className="w-14 h-14 bg-gradient-to-br from-primary-500/20 to-cyan-500/20 rounded-xl flex items-center justify-center text-2xl shrink-0 group-hover:scale-110 transition-transform">
                     <Icon icon={item.icon} className="w-8 h-8 text-primary-500" />
                   </span>
                   <div>
-                    <span className={`text-sm block ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{item.label}</span>
-                    <span className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>{item.value}</span>
+                    <span className={`text-sm block ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>{item.label}</span>
+                    <span className={`font-medium ${isDark ? 'text-white' : 'text-slate-900'}`}>{item.value}</span>
                   </div>
                 </a>
               ))}
@@ -249,7 +249,7 @@ const ContactSection = () => {
                 ? 'bg-gradient-to-br from-primary-500/10 to-violet-500/10 border border-primary-500/20'
                 : 'bg-gradient-to-br from-primary-500/10 to-violet-500/10 border border-primary-500/30'
             }`}>
-              <span className={`text-sm block mb-2 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{t('Contact Number')}</span>
+              <span className={`text-sm block mb-2 ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>{t('Contact Number')}</span>
               <span className="block text-3xl sm:text-4xl font-black gradient-text mb-2">{t('Tel : +250 782 439 775')}</span>
             </div>
           </div>
@@ -258,12 +258,12 @@ const ContactSection = () => {
           <div className={`p-6 sm:p-8 rounded-2xl ${
             isDark
               ? 'bg-gradient-to-br from-white/[0.03] to-transparent border border-white/5'
-              : 'bg-white border border-gray-200 shadow-sm'
+              : 'bg-white border border-slate-200 shadow-sm'
           }`}>
-            <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
               {t('contact.formTitle')}
             </h3>
-            <p className={`text-sm mb-6 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+            <p className={`text-sm mb-6 ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>
               {t('contact.formDescription')}
             </p>
             <ContactForm />

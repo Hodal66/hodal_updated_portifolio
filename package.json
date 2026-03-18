@@ -10,12 +10,19 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@apollo/client": "^4.1.6",
     "@iconify/react": "^6.0.2",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.29.0",
+    "graphql": "^16.13.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.20.0"
+    "react-router-dom": "^6.20.0",
+    "recharts": "^3.8.0",
+    "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {
+    "@flydotio/dockerfile": "^0.7.10",
     "@vitejs/plugin-react": "^4.2.0",
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.32",

@@ -17,7 +17,7 @@ const HomePage = () => {
   const { isDark } = useTheme();
 
   return (
-    <div className={`min-h-screen font-sans overflow-x-hidden ${isDark ? 'bg-dark-950 text-gray-100' : 'bg-gray-50 text-gray-900'}`}>
+    <div className={`min-h-screen font-sans overflow-x-hidden ${isDark ? 'bg-dark-950 text-gray-100' : 'bg-slate-50 text-slate-800'}`}>
       <AnimatedBackground />
       <Navbar activeSection={activeSection} setActiveSection={setActiveSection} />
 

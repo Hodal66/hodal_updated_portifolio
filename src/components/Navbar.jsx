@@ -3,7 +3,7 @@ import { config, sections } from '../data/config';
 import { useScrollPosition } from '../hooks/usePortfolio';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import logo from '../assets/HodalTechLogo.jpeg';
+import logo from '../assets/HodalTechLogo.png';
 import { Link } from 'react-router-dom';
 import Clock from './Clock';
 
@@ -50,7 +50,7 @@ const Navbar = ({ activeSection, setActiveSection }) => {
         isScrolled
           ? isDark
             ? 'bg-dark-950/95 backdrop-blur-xl border-b border-white/5'
-            : 'bg-white/95 backdrop-blur-xl border-b border-gray-200'
+            : 'bg-white/95 backdrop-blur-xl border-b border-slate-200'
           : 'bg-transparent'
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
@@ -77,7 +77,7 @@ const Navbar = ({ activeSection, setActiveSection }) => {
               <button
                 onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
                 className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all ${
-                  isDark ? 'bg-white/5 hover:bg-white/10 text-gray-300' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                  isDark ? 'bg-white/5 hover:bg-white/10 text-gray-300' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                 }`}
               >
                 <span>{currentLang?.flag}</span>
@@ -89,7 +89,7 @@ const Navbar = ({ activeSection, setActiveSection }) => {
 
               {isLangDropdownOpen && (
                 <div className={`absolute top-full right-0 mt-2 w-44 rounded-xl overflow-hidden shadow-xl z-50 ${
-                  isDark ? 'bg-dark-900 border border-white/10' : 'bg-white border border-gray-200'
+                  isDark ? 'bg-dark-900 border border-white/10' : 'bg-white border border-slate-200'
                 }`}>
                   {languages.map((lang) => (
                     <button
@@ -98,7 +98,7 @@ const Navbar = ({ activeSection, setActiveSection }) => {
                       className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-all ${
                         language === lang.code
                           ? 'bg-primary-500/10 text-primary-400'
-                          : isDark ? 'text-gray-300 hover:bg-white/5' : 'text-gray-700 hover:bg-gray-50'
+                          : isDark ? 'text-gray-300 hover:bg-white/5' : 'text-slate-700 hover:bg-slate-50'
                       }`}
                     >
                       <span className="text-lg">{lang.flag}</span>
@@ -113,7 +113,7 @@ const Navbar = ({ activeSection, setActiveSection }) => {
             <button
               onClick={toggleTheme}
               className={`p-2.5 rounded-xl transition-all ${
-                isDark ? 'bg-white/5 hover:bg-white/10 text-yellow-400' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                isDark ? 'bg-white/5 hover:bg-white/10 text-yellow-400' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
               }`}
               aria-label={isDark ? t('theme.light') : t('theme.dark')}
             >
@@ -137,7 +137,7 @@ const Navbar = ({ activeSection, setActiveSection }) => {
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className={`md:hidden flex flex-col justify-center items-center w-11 h-11 rounded-xl gap-1.5 p-2 ${
-              isDark ? 'bg-white/5 border border-white/10' : 'bg-gray-100 border border-gray-200'
+              isDark ? 'bg-white/5 border border-white/10' : 'bg-slate-100 border border-slate-200'
             }`}
             aria-label="Toggle menu"
           >
@@ -151,7 +151,7 @@ const Navbar = ({ activeSection, setActiveSection }) => {
       <div className={`fixed inset-0 z-40 bg-black/80 backdrop-blur-sm transition-all duration-300 ${isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`} onClick={() => setIsMobileMenuOpen(false)} />
 
       <div className={`fixed top-0 right-0 bottom-0 w-72 max-w-[80vw] z-50 transform transition-transform duration-300 ${
-        isDark ? 'bg-dark-950 border-l border-white/10' : 'bg-white border-l border-gray-200'
+        isDark ? 'bg-dark-950 border-l border-white/10' : 'bg-white border-l border-slate-200'
       } ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="flex flex-col h-full pt-20 px-4 pb-6">
           <div className="flex flex-col gap-2">
@@ -162,17 +162,17 @@ const Navbar = ({ activeSection, setActiveSection }) => {
                 className={`px-4 py-3 rounded-xl text-left font-medium transition-all duration-300 flex items-center gap-3 ${
                   activeSection === section
                     ? 'bg-primary-500/10 text-primary-400'
-                    : isDark ? 'text-gray-200 hover:bg-white/5' : 'text-gray-700 hover:bg-gray-100'
+                    : isDark ? 'text-gray-200 hover:bg-white/5' : 'text-slate-700 hover:bg-slate-100'
                 }`}
               >
-                <span className={`w-2 h-2 rounded-full ${activeSection === section ? 'bg-primary-400' : isDark ? 'bg-white/20' : 'bg-gray-300'}`} />
+                <span className={`w-2 h-2 rounded-full ${activeSection === section ? 'bg-primary-400' : isDark ? 'bg-white/20' : 'bg-slate-300'}`} />
                 {t(`nav.${section}`)}
               </button>
             ))}
           </div>
 
-          <div className={`mt-6 pt-6 border-t ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
-            <p className={`text-xs font-semibold mb-3 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>Language</p>
+          <div className={`mt-6 pt-6 border-t ${isDark ? 'border-white/10' : 'border-slate-200'}`}>
+            <p className={`text-xs font-semibold mb-3 ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>Language</p>
             <div className="grid grid-cols-2 gap-2 mb-4">
               {languages.map((lang) => (
                 <button
@@ -181,7 +181,7 @@ const Navbar = ({ activeSection, setActiveSection }) => {
                   className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                     language === lang.code
                       ? 'bg-primary-500/10 text-primary-400 border border-primary-500/30'
-                      : isDark ? 'bg-white/5 text-gray-300 hover:bg-white/10' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      : isDark ? 'bg-white/5 text-gray-300 hover:bg-white/10' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                   }`}
                 >
                   <span>{lang.flag}</span>
@@ -193,7 +193,7 @@ const Navbar = ({ activeSection, setActiveSection }) => {
             <button
               onClick={toggleTheme}
               className={`w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${
-                isDark ? 'bg-white/5 text-gray-300 hover:bg-white/10' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                isDark ? 'bg-white/5 text-gray-300 hover:bg-white/10' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
               {isDark ? (
