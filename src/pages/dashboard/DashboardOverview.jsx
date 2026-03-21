@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, Link } from 'react-router-dom';
 import { Icon } from '@iconify/react';
 import { motion } from 'framer-motion';
 import { useTheme } from '../../contexts/ThemeContext';
-import { getDashboardStats, getActivityLogs } from '../../services/api';
+import { getDashboardStats, getActivityLogs, getMyMeetings } from '../../services/api';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar,
@@ -57,6 +57,7 @@ const DashboardOverview = () => {
 
   const [stats, setStats] = useState(null);
   const [activities, setActivities] = useState([]);
+  const [upcomingMeetings, setUpcomingMeetings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -64,13 +65,19 @@ const DashboardOverview = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
+        const meetingsPromise = getMyMeetings().catch(() => []);
         if (isAdmin) {
-          const [statsData, activityData] = await Promise.all([
+          const [statsData, activityData, meetingsData] = await Promise.all([
             getDashboardStats(),
             getActivityLogs(5),
+            meetingsPromise,
           ]);
           setStats(statsData);
           setActivities(activityData || []);
+          setUpcomingMeetings((meetingsData || []).filter(m => ['scheduled', 'active'].includes(m.status)).slice(0, 3));
+        } else {
+          const meetingsData = await meetingsPromise;
+          setUpcomingMeetings((meetingsData || []).filter(m => ['scheduled', 'active'].includes(m.status)).slice(0, 3));
         }
       } catch (err) {
         setError(err.message || 'Failed to load dashboard data');
@@ -177,6 +184,39 @@ const DashboardOverview = () => {
           )}
         </div>
       </div>
+
+      {/* Upcoming Meetings */}
+      {upcomingMeetings.length > 0 && (
+        <div className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Upcoming Meetings</h3>
+            <Link to="/dashboard/meetings" className="text-sm text-blue-500 hover:text-blue-400 font-semibold">View All</Link>
+          </div>
+          <div className="space-y-3">
+            {upcomingMeetings.map(meeting => (
+              <div key={meeting._id} className="flex items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 transition-all">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                    <Icon icon="fluent:video-24-filled" width="20" className="text-blue-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">{meeting.title}</p>
+                    <p className="text-xs text-slate-500">
+                      {new Date(meeting.startTime).toLocaleDateString()} at {new Date(meeting.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  to={`/dashboard/meeting/${meeting.meetingId}`}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-xl text-xs font-bold hover:bg-blue-600 transition-all shadow-lg shadow-blue-500/20"
+                >
+                  Join
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

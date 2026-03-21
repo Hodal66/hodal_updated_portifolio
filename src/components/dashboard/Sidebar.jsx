@@ -13,6 +13,8 @@ const Sidebar = ({ isDark, userRole }) => {
     { name: 'Analytics', path: '/dashboard/analytics', icon: 'fluent:chart-area-24-regular', roles: ['admin'] },
     { name: 'Projects', path: '/dashboard/projects', icon: 'fluent:briefcase-24-regular', roles: ['user', 'admin'] },
     { name: 'Messages', path: '/dashboard/messages', icon: 'fluent:chat-24-regular', roles: ['user', 'admin'] },
+    { name: 'Meetings', path: '/dashboard/meetings', icon: 'fluent:video-24-regular', roles: ['user', 'admin'] },
+    { name: 'Contact Messages', path: '/dashboard/contact-messages', icon: 'fluent:mail-24-regular', roles: ['admin'] },
     { name: 'Files', path: '/dashboard/files', icon: 'fluent:folder-24-regular', roles: ['user', 'admin'] },
     { name: 'Settings', path: '/dashboard/settings', icon: 'fluent:settings-24-regular', roles: ['user', 'admin'] },
   ];

@@ -1,6 +1,7 @@
 import { Icon } from '@iconify/react';
 import React, { useState } from 'react';
-import { config, contactItems } from '../data/config';
+import { submitContactForm } from '../services/api';
+import { contactItems } from '../data/config';
 import { useIsLoaded } from '../hooks/usePortfolio';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -54,13 +55,15 @@ const ContactForm = () => {
     if (!validateForm()) return;
 
     setIsSubmitting(true);
+    setSubmitStatus(null);
 
-    // Simulate form submission (replace with actual API call)
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Here you would typically send the form data to your backend
-      console.log('Form submitted:', formData);
+      // API call to backend
+      await submitContactForm({
+        name: formData.fullName,
+        email: formData.email,
+        message: formData.message
+      });
       
       setSubmitStatus('success');
       setFormData({ fullName: '', email: '', message: '' });

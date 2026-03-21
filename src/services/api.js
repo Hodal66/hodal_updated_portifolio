@@ -10,8 +10,10 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3300
 const request = async (endpoint, options = {}) => {
   const token = localStorage.getItem('token');
 
+  const isFormData = options.body instanceof FormData;
+
   const defaultHeaders = {
-    'Content-Type': 'application/json',
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 
@@ -29,7 +31,10 @@ const request = async (endpoint, options = {}) => {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || `Request failed with status ${response.status}`);
+    const error = new Error(data.message || `Request failed with status ${response.status}`);
+    // Preserve all additional fields from the response (e.g., requiresVerification, email)
+    Object.assign(error, data);
+    throw error;
   }
 
   return data;
@@ -101,8 +106,10 @@ export const updateMe = (data) =>
     body: JSON.stringify(data),
   });
 
-export const getUsers = (limit = 20, skip = 0) =>
-  request(`/users?limit=${limit}&skip=${skip}`);
+export const getUsers = (limit = 20, skip = 0, search = '') => {
+  const searchParam = search ? `&search=${search}` : '';
+  return request(`/users?limit=${limit}&skip=${skip}${searchParam}`);
+};
 
 export const updateUserRole = (userId, roles) =>
   request(`/users/${userId}`, {
@@ -150,3 +157,102 @@ export const markAllNotificationsRead = () =>
 
 export const getActivityLogs = (limit = 30) =>
   request(`/dashboard/activity-logs?limit=${limit}`);
+
+// ────────────────────────────── Messaging API ──────────────────────────────
+
+export const submitContactForm = (data) =>
+  request('/messages/contact', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+
+export const getInboxes = () => request('/messages/conversations');
+
+export const startConversation = (recipientId) =>
+  request('/messages/conversations', {
+    method: 'POST',
+    body: JSON.stringify({ recipientId }),
+  });
+
+export const getConversationDetails = (conversationId, limit = 50, skip = 0) =>
+  request(`/messages/conversations/${conversationId}?limit=${limit}&skip=${skip}`);
+
+export const markConversationAsRead = (conversationId) =>
+  request(`/messages/conversations/${conversationId}/read`, { method: 'PATCH' });
+
+export const sendNewMessage = (conversationId, content, recipientId, attachments) =>
+  request('/messages/send', {
+    method: 'POST',
+    body: JSON.stringify({ conversationId, content, recipientId, attachments }),
+  });
+
+export const uploadFile = (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  return request('/messages/upload', {
+    method: 'POST',
+    body: formData,
+  });
+};
+
+export const getAdminContactMessages = (limit = 20, skip = 0, status) => {
+  const statusParam = status ? `&status=${status}` : '';
+  return request(`/messages/admin/contact-messages?limit=${limit}&skip=${skip}${statusParam}`);
+};
+
+export const updateContactStatus = (id, status) =>
+  request(`/messages/admin/contact-messages/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  });
+
+// ────────────────────────────── Meetings API ──────────────────────────────
+
+export const scheduleMeeting = (meetingData) =>
+  request('/meetings/schedule', {
+    method: 'POST',
+    body: JSON.stringify(meetingData),
+  });
+
+export const getMyMeetings = () => request('/meetings/my-meetings');
+
+export const getMeeting = (meetingId) => request(`/meetings/${meetingId}`);
+
+export const updateMeetingStatus = (meetingId, status) =>
+  request(`/meetings/${meetingId}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  });
+
+export const joinMeetingAPI = (meetingId) =>
+  request(`/meetings/${meetingId}/join`, { method: 'POST' });
+
+export const leaveMeetingAPI = (meetingId) =>
+  request(`/meetings/${meetingId}/leave`, { method: 'POST' });
+
+export const endMeetingAPI = (meetingId) =>
+  request(`/meetings/${meetingId}/end`, { method: 'POST' });
+
+export const getMeetingParticipants = (meetingId) =>
+  request(`/meetings/${meetingId}/participants`);
+
+export const getMeetingMessages = (meetingId, limit = 100, skip = 0) =>
+  request(`/meetings/${meetingId}/messages?limit=${limit}&skip=${skip}`);
+
+export const sendMeetingMessage = (meetingId, content, type = 'text', fileUrl, fileName) =>
+  request(`/meetings/${meetingId}/messages`, {
+    method: 'POST',
+    body: JSON.stringify({ content, type, fileUrl, fileName }),
+  });
+
+export const getMeetingHistory = () => request('/meetings/history');
+
+// ────────────────────────────── Calls API ──────────────────────────────
+
+export const startCall = (receiverId, type = 'voice') =>
+  request('/calls/start', {
+    method: 'POST',
+    body: JSON.stringify({ receiverId, type }),
+  });
+
+export const getCallHistory = () => request('/calls/history');

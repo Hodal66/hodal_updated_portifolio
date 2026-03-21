@@ -37,15 +37,16 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = useCallback(async (email, password) => {
-    const data = await loginUser(email, password);
-
-    // If account requires verification, store email and throw for caller to handle
-    if (data.requiresVerification) {
-      setPendingEmail(data.email);
-      const error = new Error(data.message);
-      error.requiresVerification = true;
-      error.email = data.email;
-      throw error;
+    let data;
+    try {
+      data = await loginUser(email, password);
+    } catch (err) {
+      // If account requires verification, store email and re-throw for caller to handle
+      if (err.requiresVerification) {
+        setPendingEmail(err.email || email);
+        throw err;
+      }
+      throw err;
     }
 
     const { user: userData, tokens } = data;

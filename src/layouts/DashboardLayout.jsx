@@ -31,7 +31,7 @@ const DashboardLayout = () => {
       <Sidebar isDark={isDark} userRole={user?.roles?.[0] || 'user'} />
       <div className="flex-1 flex flex-col min-w-0">
         <Navbar user={user} />
-        <main className="flex-1 p-8 overflow-y-auto">
+        <main className={`flex-1 overflow-y-auto ${location.pathname === '/dashboard/messages' ? 'p-0' : 'p-8'}`}>
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
