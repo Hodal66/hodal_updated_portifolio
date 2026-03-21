@@ -3,7 +3,7 @@
  * All API calls go through here to ensure consistent error handling and auth header injection.
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3300/v1';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://hodal-new-portfolio-bn.onrender.com/v1';
 
 // ────────────────────────────── Core request helper ──────────────────────────────
 
