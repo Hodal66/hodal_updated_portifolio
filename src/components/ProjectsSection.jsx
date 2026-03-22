@@ -5,7 +5,7 @@ import { projects as staticProjects } from '../data/config';
 import { useIsLoaded } from '../hooks/usePortfolio';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { fetchProjects } from '../services/api';
+import { fetchProjects, getOptimizedImageUrl } from '../services/api';
 
 const ProjectCard = ({ project }) => {
   const navigate = useNavigate();
@@ -55,7 +55,7 @@ const ProjectCard = ({ project }) => {
       <div className="flex items-start justify-between mb-5">
         <div className={`w-16 h-16 sm:w-18 sm:h-18 bg-gradient-to-br ${project.gradient} rounded-xl flex items-center justify-center text-white text-2xl sm:text-3xl shadow-lg group-hover:scale-110 transition-transform duration-500 overflow-hidden border border-white/10`}>
           {project.image?.startsWith('http') ? (
-            <img src={project.image} alt={project.title} className="w-full h-full object-cover" />
+            <img src={getOptimizedImageUrl(project.image, 400)} alt={project.title} className="w-full h-full object-cover" loading="lazy" />
           ) : (
             <Icon icon={project.image || 'fluent:cube-24-filled'} className="w-8 h-8 sm:w-10 sm:h-10" />
           )}

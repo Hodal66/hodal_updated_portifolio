@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Icon } from '@iconify/react';
+import { Helmet } from 'react-helmet-async';
 import { projects as staticProjects } from '../data/config';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { fetchProjects } from '../services/api';
+import { fetchProjects, getOptimizedImageUrl } from '../services/api';
 import { Footer } from '../components';
+import { motion } from 'framer-motion';
 
 const ProjectDetailPage = () => {
   const { slug } = useParams();
@@ -100,7 +102,8 @@ const ProjectDetailPage = () => {
 
   const renderVisual = (imgUrl = featuredImage) => {
     if (imgUrl?.startsWith('http') || imgUrl?.startsWith('/')) {
-        return <img src={imgUrl} alt={project.title} className="w-full h-full object-cover rounded-[2.5rem] shadow-2xl" />;
+        const optimizedUrl = getOptimizedImageUrl(imgUrl, 1200);
+        return <img src={optimizedUrl} alt={project.title} className="w-full h-full object-cover rounded-[2.5rem] shadow-2xl" loading="eager" />;
     }
     return (
       <div className="w-full h-full bg-white/10 backdrop-blur-md rounded-[2.5rem] flex items-center justify-center text-5xl border border-white/20 shadow-2xl">
@@ -109,8 +112,60 @@ const ProjectDetailPage = () => {
     );
   };
 
+  const projectTitle = `${getLocalizedField(project, 'title')} | Muheto Hodal Project`;
+  const projectDesc = getLocalizedField(project, 'description').substring(0, 160);
+  
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareSourceCode",
+        "name": getLocalizedField(project, 'title'),
+        "description": getLocalizedField(project, 'description'),
+        "codeRepository": project.links?.github,
+        "runtimePlatform": project.tech?.join(", "),
+        "author": {
+          "@type": "Person",
+          "name": "Muheto Hodal"
+        }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Portfolio",
+            "item": "https://hodaltech.space/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": getLocalizedField(project, 'title'),
+            "item": `https://hodaltech.space/project/${project.slug}`
+          }
+        ]
+      }
+    ]
+  };
+
   return (
     <div className={`min-h-screen font-sans selection:bg-primary-500/30 ${isDark ? 'bg-dark-950 text-gray-100' : 'bg-slate-50 text-slate-900'}`}>
+      <Helmet>
+        <title>{projectTitle}</title>
+        <meta name="description" content={projectDesc} />
+        <meta property="og:title" content={projectTitle} />
+        <meta property="og:description" content={projectDesc} />
+        <meta property="og:image" content={featuredImage} />
+        <meta property="twitter:title" content={projectTitle} />
+        <meta property="twitter:description" content={projectDesc} />
+        <meta property="twitter:image" content={featuredImage} />
+      </Helmet>
+
+      <script type="application/ld+json">
+        {JSON.stringify(structuredData)}
+      </script>
+
       {/* Background Decor */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <div className={`absolute top-[5%] -left-[10%] w-[800px] h-[800px] rounded-full blur-[150px] animate-pulse ${isDark ? 'bg-primary-500/5' : 'bg-primary-500/10'}`} />
@@ -283,7 +338,7 @@ const ProjectDetailPage = () => {
                           viewport={{ once: true }}
                           className="group relative aspect-[16/10] rounded-[2rem] overflow-hidden border border-inherit shadow-lg"
                         >
-                           <img src={img.url} alt={img.caption || project.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                           <img src={getOptimizedImageUrl(img.url, 800)} alt={img.caption || project.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy" />
                            {img.caption && (
                              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
                                <p className="text-white text-xs font-bold uppercase tracking-widest">{img.caption}</p>

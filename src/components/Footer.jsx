@@ -14,8 +14,24 @@ const Footer = () => {
     { icon: 'fluent:globe-24-filled', link: `https://${config.website}`, label: 'Website' },
   ];
 
+  const orgSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "HodalTech",
+    "url": "https://hodaltech.space/",
+    "logo": "https://res.cloudinary.com/dqd87p5cz/image/upload/v1774207737/HodalTechLogo_xrm8ah.png",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "email": "hodalmuheto1@gmail.com",
+      "contactType": "Customer Support"
+    }
+  };
+
   return (
     <footer className={`relative py-8 ${isDark ? 'border-t border-white/5 bg-dark-950/50' : 'border-t border-slate-200 bg-slate-50/50'}`}>
+      <script type="application/ld+json">
+        {JSON.stringify(orgSchema)}
+      </script>
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
           <div>

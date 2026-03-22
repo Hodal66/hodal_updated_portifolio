@@ -47,6 +47,11 @@ const ForgotPasswordPage = () => {
       setSuccess(data.message || 'If an account exists, a reset code has been sent.');
       setStep('otp');
       setResendTimer(RESEND_COOLDOWN_SECONDS);
+      
+      // Dev optimization: pre-fill code if present in response
+      if (data.devOtp) {
+        setOtpValues(data.devOtp.split(''));
+      }
     } catch (err) {
       setError(err.message || 'Failed to submit reset request.');
     } finally {

@@ -30,12 +30,18 @@ const OtpVerificationPage = () => {
 
   const inputRefs = useRef([]);
 
-  // Redirect if no email
+  // Redirect if no email, and handle devOtp auto-fill
   useEffect(() => {
     if (!email) {
       navigate('/register');
+      return;
     }
-  }, [email, navigate]);
+
+    // Dev optimization: if devOtp is passed in navigation state, pre-fill it
+    if (location.state?.devOtp && /^\d{6}$/.test(location.state.devOtp)) {
+      setOtpValues(location.state.devOtp.split(''));
+    }
+  }, [email, navigate, location.state]);
 
   // Countdown timer for resend
   useEffect(() => {

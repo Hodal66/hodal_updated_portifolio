@@ -34,7 +34,7 @@ const LoginPage = () => {
     } catch (err) {
       // If account requires OTP verification, redirect to verification page
       if (err.requiresVerification) {
-        navigate('/verify-otp', { state: { email: err.email } });
+        navigate('/verify-otp', { state: { email: err.email, devOtp: err.devOtp } });
         return;
       }
       setError(err.message || 'Login failed. Please check your credentials.');

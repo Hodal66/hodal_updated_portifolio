@@ -5,6 +5,20 @@
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://hodal-new-portfolio-bn.onrender.com/v1';
 
+/**
+ * Cloudinary SEO & Performance Optimizer
+ * Injects f_auto (auto format) and q_auto (auto quality) for up to 80% bandwidth savings.
+ */
+export const getOptimizedImageUrl = (url, width) => {
+  if (!url || !url.includes('cloudinary.com')) return url;
+  
+  const parts = url.split('/upload/');
+  if (parts.length !== 2) return url;
+  
+  const params = width ? `f_auto,q_auto,w_${width},c_limit` : 'f_auto,q_auto';
+  return `${parts[0]}/upload/${params}/${parts[1]}`;
+};
+
 // ────────────────────────────── Core request helper ──────────────────────────────
 
 const request = async (endpoint, options = {}) => {
