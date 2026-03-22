@@ -6,7 +6,6 @@ import IncomingCallModal from '../components/dashboard/IncomingCallModal';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Footer } from '../components';
 
 const DashboardLayout = () => {
   const { isDark } = useTheme();
@@ -45,7 +44,6 @@ const DashboardLayout = () => {
               <Outlet context={{ user }} />
             </motion.div>
           </AnimatePresence>
-          <Footer />
         </main>
         <IncomingCallModal />
       </div>
