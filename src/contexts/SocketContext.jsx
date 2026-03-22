@@ -13,7 +13,7 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     if (user) {
       // Connect to the backend socket server
-      const newSocket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:3300', {
+      const newSocket = io(import.meta.env.VITE_SOCKET_URL || 'https://hodal-new-portfolio-bn.onrender.com', {
         transports: ['polling', 'websocket'], // Use polling first for reliability across hosting providers (like Render)
         withCredentials: true,
       });
