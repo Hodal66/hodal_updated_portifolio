@@ -14,7 +14,8 @@ export const SocketProvider = ({ children }) => {
     if (user) {
       // Connect to the backend socket server
       const newSocket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:3300', {
-        transports: ['websocket'],
+        transports: ['polling', 'websocket'], // Use polling first for reliability across hosting providers (like Render)
+        withCredentials: true,
       });
 
       newSocket.on('connect', () => {
