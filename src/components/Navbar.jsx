@@ -3,9 +3,10 @@ import { config, sections } from '../data/config';
 import { useScrollPosition } from '../hooks/usePortfolio';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import logo from '../assets/HodalTechLogo.png';
 import { Link } from 'react-router-dom';
 import Clock from './Clock';
+
+const logo = "https://res.cloudinary.com/dqd87p5cz/image/upload/v1774207737/HodalTechLogo_xrm8ah.png";
 
 const Navbar = ({ activeSection, setActiveSection }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

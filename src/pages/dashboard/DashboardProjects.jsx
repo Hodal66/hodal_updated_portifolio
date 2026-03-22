@@ -1,652 +1,630 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useOutletContext } from 'react-router-dom';
-import { Icon } from '@iconify/react';
-import { useTheme } from '../../contexts/ThemeContext';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   fetchProjects, 
   createProject, 
   updateProject, 
   deleteProject, 
-  uploadProjectImage 
+  uploadProjectImage,
+  deleteProjectImage,
+  setFeaturedProjectImage
 } from '../../services/api';
+import { useTheme } from '../../contexts/ThemeContext';
+import { Icon } from '@iconify/react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '../../contexts/LanguageContext';
 
-const ProjectModal = ({ onClose, onSave, editingProject }) => {
+/** ──────────────────────── Project Modal Component ──────────────────────── */
+
+const ProjectModal = ({ project, isOpen, onClose, onSave }) => {
   const { isDark } = useTheme();
+  const { language } = useLanguage();
+  const [activeTab, setActiveTab] = useState('core');
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('core');
+  const [errors, setErrors] = useState({});
+  const [form, setForm] = useState(getInitialForm());
 
-  // Initial state logic
-  const getInitialForm = () => {
-    const defaultLocalized = {
+  function getInitialForm() {
+    return {
+      title: '', slug: '', subtitle: '', category: '', year: new Date().getFullYear().toString(),
+      duration: '', status: 'live', role: '', team: 'Solitary',
+      description: '', overview: '', challenge: '', solution: '',
+      image: 'https://res.cloudinary.com/dqd87p5cz/image/upload/v1774208280/TimtomAviation_sx1mrm.png', 
+      gradient: 'from-primary-600 to-cyan-600',
+      featured: false, order: 0,
+      tech: [], tags: [],
+      links: { github: '', live: '', demo: '', docs: '', company: '' },
+      metrics: [], features: [], architecture: [], lessons: [],
+      // Localized
       titleFr: '', titleSw: '', titleRw: '',
       subtitleFr: '', subtitleSw: '', subtitleRw: '',
-      categoryFr: '', categorySw: '', categoryRw: '',
       descriptionFr: '', descriptionSw: '', descriptionRw: '',
       overviewFr: '', overviewSw: '', overviewRw: '',
       challengeFr: '', challengeSw: '', challengeRw: '',
       solutionFr: '', solutionSw: '', solutionRw: '',
+      images: []
     };
+  }
 
-    if (editingProject) {
-      return {
-        ...defaultLocalized,
-        ...editingProject,
-        tech: Array.isArray(editingProject.tech) ? editingProject.tech.join(', ') : '',
-        lessons: Array.isArray(editingProject.lessons) ? editingProject.lessons.join('\n') : '',
-        links: editingProject.links || {},
-        metrics: editingProject.metrics || {}
-      };
+  useEffect(() => {
+    if (project) {
+      setForm({
+        ...getInitialForm(),
+        ...project,
+        tech: project.tech || [],
+        tags: project.tags || [],
+        links: { ...getInitialForm().links, ...(project.links || {}) },
+        metrics: project.metrics ? Object.entries(project.metrics).map(([k, v]) => ({ label: v.label || k, value: v.value || v })) : [],
+        features: project.features || [],
+        architecture: project.architecture || [],
+        lessons: project.lessons || [],
+        images: project.images || []
+      });
+    } else {
+      setForm(getInitialForm());
     }
-    return {
-      title: '', slug: '', subtitle: '', category: '', year: '', duration: '',
-      status: 'live', role: '', team: '', description: '', overview: '',
-      challenge: '', solution: '', tech: '', lessons: '',
-      ...defaultLocalized,
-      links: { github: '', live: '', demo: '', docs: '', company: '' },
-      featured: false, order: 0
-    };
-  };
-
-  const [form, setForm] = useState(getInitialForm());
+  }, [project, isOpen]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    
-    // Handle nested links
-    if (name.startsWith('link_')) {
-      const linkKey = name.replace('link_', '');
-      setForm(prev => ({
-        ...prev,
-        links: { ...prev.links, [linkKey]: value }
-      }));
-      return;
+    if (name.includes('.')) {
+      const [parent, child] = name.split('.');
+      setForm(prev => ({ ...prev, [parent]: { ...prev[parent], [child]: value } }));
+    } else {
+      setForm(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
     }
-
-    if (type === 'checkbox') {
-      setForm(prev => ({ ...prev, [name]: checked }));
-      return;
-    }
-
-    const auto = name === 'title' && !editingProject 
-      ? { slug: value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') } 
-      : {};
-    
-    setForm(prev => ({ ...prev, [name]: value, ...auto }));
   };
 
-  const handleImageUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file || !editingProject?._id) return;
+  const handleArrayChange = (field, index, subfield, value) => {
+    setForm(prev => {
+      const arr = [...prev[field]];
+      if (subfield) arr[index] = { ...arr[index], [subfield]: value };
+      else arr[index] = value;
+      return { ...prev, [field]: arr };
+    });
+  };
 
+  const addArrayItem = (field, defaultValue) => {
+    setForm(prev => ({ ...prev, [field]: [...prev[field], defaultValue] }));
+  };
+
+  const removeArrayItem = (field, index) => {
+    setForm(prev => ({ ...prev, [field]: prev[field].filter((_, i) => i !== index) }));
+  };
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file || !project?._id) return;
+    
     setUploading(true);
     try {
-      const { image } = await uploadProjectImage(editingProject._id, file);
-      setForm(prev => ({ ...prev, image }));
+      const res = await uploadProjectImage(project._id, file);
+      setForm(prev => ({ ...prev, images: res.project.images, image: res.project.image }));
     } catch (err) {
-      setError('Failed to upload image: ' + err.message);
+      console.error(err);
+      alert('Upload failed. Note: You can only upload images to existing projects. For new projects, save first, then upload images.');
     } finally {
       setUploading(false);
     }
   };
 
+  const handleDeleteImage = async (publicId) => {
+    if (!project?._id || !window.confirm('Are you sure you want to remove this image?')) return;
+    try {
+      const res = await deleteProjectImage(project._id, publicId);
+      setForm(prev => ({ 
+        ...prev, 
+        images: prev.images.filter(img => img.publicId !== publicId),
+        image: prev.image === res.deletedUrl ? '' : prev.image
+      }));
+    } catch (err) { alert('Delete failed'); }
+  };
+
+  const handleSetFeatured = async (publicId) => {
+    if (!project?._id) return;
+    try {
+      const res = await setFeaturedProjectImage(project._id, publicId);
+      setForm(prev => ({ ...prev, images: res.project.images, image: res.project.image }));
+    } catch (err) { alert('Update failed'); }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
-    try {
-      const payload = { 
-        ...form, 
-        tech: typeof form.tech === 'string' ? form.tech.split(',').map((t) => t.trim()).filter(Boolean) : form.tech,
-        lessons: typeof form.lessons === 'string' ? form.lessons.split('\n').map((l) => l.trim()).filter(Boolean) : form.lessons
-      };
+    setErrors({});
+    
+    // Transform metrics array back to map if needed by backend (the logic here handles both)
+    const payload = { 
+      ...form, 
+      metrics: form.metrics.reduce((acc, curr) => {
+        acc[curr.label.replace(/\s+/g, '_')] = { label: curr.label, value: curr.value };
+        return acc;
+      }, {})
+    };
 
-      let result;
-      if (editingProject) {
-        result = await updateProject(editingProject._id, payload);
+    try {
+      if (project?._id) {
+        await updateProject(project._id, payload);
       } else {
-        result = await createProject(payload);
+        await createProject(payload);
       }
-      
-      onSave(result);
+      onSave();
       onClose();
     } catch (err) {
-      setError(err.message);
+      setErrors(err.errors || { message: err.message });
     } finally {
       setLoading(false);
     }
   };
 
-  const inputClass = `w-full px-4 py-3 rounded-xl outline-none transition-all text-sm font-medium ${
-    isDark ? 'bg-white/5 border border-white/10 text-white focus:border-primary-500' : 'bg-slate-50 border border-slate-200 text-slate-900 focus:border-primary-500'
-  }`;
-
-  const labelClass = `block text-[10px] font-extrabold uppercase tracking-widest mb-2 ${isDark ? 'text-slate-500' : 'text-slate-400'}`;
+  if (!isOpen) return null;
 
   const tabs = [
-    { id: 'core', label: 'Core Info', icon: 'fluent:info-24-filled' },
-    { id: 'details', label: 'Story & Narrative', icon: 'fluent:book-24-filled' },
-    { id: 'tech', label: 'Stack & Links', icon: 'fluent:code-24-filled' },
-    { id: 'localization', label: 'Localization', icon: 'fluent:globe-24-filled' },
+    { id: 'core', label: 'Identity & Info', icon: 'fluent:fingerprint-24-filled' },
+    { id: 'narrative', label: 'Story & Description', icon: 'fluent:book-letter-24-filled' },
+    { id: 'tech', label: 'Engineering Stack', icon: 'fluent:laptop-code-24-filled' },
+    { id: 'media', label: 'Galleries & Media', icon: 'fluent:image-multiple-24-filled' },
+    { id: 'trans', label: 'Localization', icon: 'fluent:localize-24-filled' }
   ];
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+      <motion.div 
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className={`w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-[2.5rem] border shadow-2xl flex flex-col ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        className={`relative w-full max-w-5xl max-h-[90vh] overflow-hidden rounded-[2.5rem] shadow-2xl border ${
+          isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'
+        }`}
       >
-        {/* Header */}
-        <div className="p-8 border-b border-inherit flex items-center justify-between shrink-0">
-          <div>
-            <h3 className={`text-2xl font-black tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
-              {editingProject ? 'Edit Project' : 'Add New Portfolio Piece'}
-            </h3>
-            <p className="text-xs text-slate-500 font-bold mt-1">Populate your project dashboard with rich data</p>
-          </div>
-          <button onClick={onClose} className="p-3 rounded-2xl hover:bg-rose-500/10 text-slate-400 hover:text-rose-500 transition-all">
-            <Icon icon="fluent:dismiss-24-regular" width="24" />
-          </button>
-        </div>
-
-        {/* Tabs */}
-        <div className="flex px-8 py-2 border-b border-inherit bg-inherit sticky top-0 z-10">
-          {tabs.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-6 py-4 text-xs font-black uppercase tracking-widest transition-all relative ${
-                activeTab === tab.id ? 'text-primary-500' : 'text-slate-500 hover:text-slate-300'
-              }`}
-            >
-              <Icon icon={tab.icon} width="18" />
-              {tab.label}
-              {activeTab === tab.id && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-1 bg-primary-500 rounded-full" />}
+        <div className="flex flex-col h-full">
+          {/* Header */}
+          <div className="px-8 py-6 border-b border-inherit flex items-center justify-between bg-primary-500/5">
+            <div>
+              <h2 className={`text-2xl font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>{project ? 'Refine Project' : 'Initiate New Project'}</h2>
+              <p className={`text-xs font-bold uppercase tracking-widest ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>CMS Operations Center</p>
+            </div>
+            <button onClick={onClose} className={`p-2 rounded-xl hover:bg-white/10 transition-colors ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+              <Icon icon="fluent:dismiss-24-filled" width="24" />
             </button>
-          ))}
-        </div>
-
-        {/* Content */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-8 custom-scrollbar">
-          {error && <div className="mb-8 p-4 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-2xl text-sm font-bold flex items-center gap-3">
-             <Icon icon="fluent:error-circle-24-filled" width="20" />
-             {error}
-          </div>}
-
-          <div className="space-y-10">
-            {activeTab === 'core' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="col-span-2 flex flex-col items-center sm:flex-row gap-8 mb-4">
-                  <div className="relative group">
-                    <div className={`w-36 h-36 rounded-[2rem] overflow-hidden border-2 ${isDark ? 'border-white/10 bg-white/5' : 'border-slate-100 bg-slate-50'} flex items-center justify-center shadow-inner`}>
-                      {form.image ? (
-                        <img src={form.image} className="w-full h-full object-cover" alt="Preview" />
-                      ) : (
-                        <Icon icon="fluent:image-24-filled" width="48" className="text-slate-600/30" />
-                      )}
-                    </div>
-                    {editingProject && (
-                      <label className="absolute -bottom-2 -right-2 p-3 bg-primary-500 text-white rounded-2xl shadow-xl cursor-pointer hover:scale-110 active:scale-95 transition-all">
-                        <Icon icon={uploading ? 'fluent:spinner-24-regular' : 'fluent:camera-24-filled'} width="20" className={uploading ? 'animate-spin' : ''} />
-                        <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
-                      </label>
-                    )}
-                  </div>
-                  <div className="flex-1 space-y-2 text-center sm:text-left">
-                    <h4 className={`font-black uppercase tracking-widest text-sm ${isDark ? 'text-white' : 'text-slate-900'}`}>Cover Image</h4>
-                    <p className="text-xs text-slate-500 font-medium max-w-xs">Upload a high-quality 16:9 thumbnail. Recommended size: 1280x720px.</p>
-                    {!editingProject && <p className="text-[10px] text-primary-500 font-bold uppercase tracking-widest bg-primary-500/10 px-3 py-1 rounded-full inline-block">Create first to upload image</p>}
-                  </div>
-                </div>
-
-                <div className="space-y-6">
-                  <div>
-                    <label className={labelClass}>Project Title</label>
-                    <input name="title" value={form.title} onChange={handleChange} className={inputClass} placeholder="e.g. IHUZE Mentorship" required />
-                  </div>
-                  <div>
-                    <label className={labelClass}>URL Slug</label>
-                    <input name="slug" value={form.slug} onChange={handleChange} className={inputClass} placeholder="ihuze-platform" required disabled={!!editingProject} />
-                  </div>
-                  <div>
-                    <label className={labelClass}>Subtitle</label>
-                    <input name="subtitle" value={form.subtitle} onChange={handleChange} className={inputClass} placeholder="Enterprise-Grade Mentorship Ecosystem" />
-                  </div>
-                </div>
-
-                <div className="space-y-6">
-                   <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className={labelClass}>Category</label>
-                        <input name="category" value={form.category} onChange={handleChange} className={inputClass} placeholder="Web App" />
-                      </div>
-                      <div>
-                        <label className={labelClass}>Year</label>
-                        <input name="year" value={form.year} onChange={handleChange} className={inputClass} placeholder="2025" />
-                      </div>
-                   </div>
-                   <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className={labelClass}>Status</label>
-                        <select name="status" value={form.status} onChange={handleChange} className={inputClass}>
-                          <option value="live">Live</option>
-                          <option value="in-progress">In Progress</option>
-                          <option value="archived">Archived</option>
-                          <option value="draft">Draft</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className={labelClass}>Duration</label>
-                        <input name="duration" value={form.duration} onChange={handleChange} className={inputClass} placeholder="6 months" />
-                      </div>
-                   </div>
-                   <div className="flex items-center gap-4 pt-4">
-                      <label className="flex items-center gap-3 cursor-pointer group">
-                        <div className={`w-12 h-6 rounded-full p-1 transition-colors ${form.featured ? 'bg-primary-500' : (isDark ? 'bg-white/10' : 'bg-slate-200')}`}>
-                           <motion.div animate={{ x: form.featured ? 24 : 0 }} className="w-4 h-4 bg-white rounded-full shadow-sm" />
-                        </div>
-                        <input type="checkbox" name="featured" checked={form.featured} onChange={handleChange} className="hidden" />
-                        <span className={`text-xs font-black uppercase tracking-widest ${form.featured ? 'text-primary-500' : 'text-slate-500'}`}>Featured</span>
-                      </label>
-                   </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'details' && (
-              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div>
-                   <label className={labelClass}>Short Description (Grid View)</label>
-                   <textarea name="description" value={form.description} onChange={handleChange} className={`${inputClass} h-24 resize-none`} placeholder="Visible on project cards..." required />
-                </div>
-                <div>
-                   <label className={labelClass}>Project Overview (Landing Page Intro)</label>
-                   <textarea name="overview" value={form.overview} onChange={handleChange} className={`${inputClass} h-40 resize-none`} placeholder="Detailed summary of the mission and goal..." />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div>
-                    <label className={labelClass}>The Challenge</label>
-                    <textarea name="challenge" value={form.challenge} onChange={handleChange} className={`${inputClass} h-32 resize-none`} placeholder="What problems were we solving?" />
-                  </div>
-                  <div>
-                    <label className={labelClass}>The Solution</label>
-                    <textarea name="solution" value={form.solution} onChange={handleChange} className={`${inputClass} h-32 resize-none`} placeholder="How does the tech solve it?" />
-                  </div>
-                </div>
-                <div>
-                   <label className={labelClass}>Key Lessons (One per line)</label>
-                   <textarea name="lessons" value={form.lessons} onChange={handleChange} className={`${inputClass} h-32 resize-none`} placeholder="What did you learn?" />
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'tech' && (
-              <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                   <div>
-                      <label className={labelClass}>Technology Stack (Comma Separated)</label>
-                      <input name="tech" value={form.tech} onChange={handleChange} className={inputClass} placeholder="React, Node.js, Tailwind..." />
-                   </div>
-                   <div>
-                      <label className={labelClass}>Project Role</label>
-                      <input name="role" value={form.role} onChange={handleChange} className={inputClass} placeholder="Lead Frontend Developer" />
-                   </div>
-                </div>
-
-                <div>
-                   <h4 className={`text-xs font-black uppercase tracking-[0.2em] mb-6 flex items-center gap-3 ${isDark ? 'text-primary-400' : 'text-primary-500'}`}>
-                     <Icon icon="fluent:link-24-filled" width="20" />
-                     External Links & Deployment
-                   </h4>
-                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {[
-                        { key: 'github', label: 'GitHub Repository', icon: 'mdi:github' },
-                        { key: 'live', label: 'Production URL', icon: 'fluent:globe-24-regular' },
-                        { key: 'demo', label: 'Demo / Sandbox', icon: 'fluent:box-24-regular' },
-                        { key: 'docs', label: 'Documentation', icon: 'fluent:document-24-regular' },
-                        { key: 'company', label: 'Company Link', icon: 'fluent:building-24-regular' },
-                      ].map(link => (
-                        <div key={link.key}>
-                           <label className={labelClass}>{link.label}</label>
-                           <div className="relative">
-                              <input 
-                                name={`link_${link.key}`} 
-                                value={form.links[link.key] || ''} 
-                                onChange={handleChange} 
-                                className={`${inputClass} pl-12`} 
-                                placeholder="https://..." 
-                              />
-                              <Icon icon={link.icon} className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" width="18" />
-                           </div>
-                        </div>
-                      ))}
-                   </div>
-                </div>
-              </div>
-            )}
-            {activeTab === 'localization' && (
-              <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                {['Fr', 'Sw', 'Rw'].map(lang => (
-                  <div key={lang} className={`p-8 rounded-[2.5rem] border ${isDark ? 'bg-white/5 border-white/5' : 'bg-slate-50 border-slate-200'}`}>
-                    <h4 className={`text-sm font-black uppercase tracking-widest mb-8 flex items-center gap-3 ${isDark ? 'text-primary-400' : 'text-primary-500'}`}>
-                      <Icon icon="fluent:translate-24-filled" width="20" />
-                      {lang === 'Fr' ? 'French (FR)' : lang === 'Sw' ? 'Kiswahili (SW)' : 'Kinyarwanda (RW)'} Content
-                    </h4>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                       <div className="space-y-6">
-                          <div>
-                            <label className={labelClass}>Title ({lang})</label>
-                            <input name={`title${lang}`} value={form[`title${lang}`] || ''} onChange={handleChange} className={inputClass} placeholder="Translated title..." />
-                          </div>
-                          <div>
-                            <label className={labelClass}>Subtitle ({lang})</label>
-                            <input name={`subtitle${lang}`} value={form[`subtitle${lang}`] || ''} onChange={handleChange} className={inputClass} placeholder="Translated subtitle..." />
-                          </div>
-                          <div>
-                            <label className={labelClass}>Category ({lang})</label>
-                            <input name={`category${lang}`} value={form[`category${lang}`] || ''} onChange={handleChange} className={inputClass} placeholder="Translated category..." />
-                          </div>
-                       </div>
-                       <div className="space-y-6">
-                          <div>
-                            <label className={labelClass}>Short Description ({lang})</label>
-                            <textarea name={`description${lang}`} value={form[`description${lang}`] || ''} onChange={handleChange} className={`${inputClass} h-32 resize-none`} placeholder="Translated card description..." />
-                          </div>
-                       </div>
-                    </div>
-                    
-                    <div className="space-y-6">
-                       <div>
-                          <label className={labelClass}>Full Overview ({lang})</label>
-                          <textarea name={`overview${lang}`} value={form[`overview${lang}`] || ''} onChange={handleChange} className={`${inputClass} h-40 resize-none`} placeholder="Detailed localized overview..." />
-                       </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
-        </form>
 
-        {/* Footer */}
-        <div className="p-8 border-t border-inherit bg-inherit shrink-0 flex gap-4">
-          <button type="button" onClick={onClose} className={`flex-1 py-4 font-black uppercase tracking-widest text-xs rounded-2xl transition-all ${
-            isDark ? 'bg-white/5 text-slate-400 hover:bg-white/10' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-          }`}>
-            Cancel
-          </button>
-          <button 
-            type="submit" 
-            onClick={handleSubmit}
-            disabled={loading} 
-            className="flex-[2] py-4 bg-primary-500 hover:bg-primary-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-xl shadow-primary-500/30 disabled:opacity-50 flex items-center justify-center gap-3"
-          >
-            {loading ? <Icon icon="fluent:spinner-24-regular" className="animate-spin" width="20" /> : <Icon icon="fluent:save-24-filled" width="20" />}
-            {editingProject ? 'Apply Changes' : 'Publish Project'}
-          </button>
+          <div className="flex flex-1 overflow-hidden">
+            {/* Sidebar Tabs */}
+            <div className={`w-64 border-r border-inherit hidden md:flex flex-col p-4 gap-2 ${isDark ? 'bg-slate-950/30' : 'bg-slate-50'}`}>
+              {tabs.map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${
+                    activeTab === tab.id 
+                      ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/20 scale-105' 
+                      : isDark ? 'text-slate-400 hover:bg-white/5' : 'text-slate-500 hover:bg-slate-100'
+                  }`}
+                >
+                  <Icon icon={tab.icon} width="20" />
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Scrollable Content Area */}
+            <form onSubmit={handleSubmit} id="project-form" className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ duration: 0.2 }}
+                  className="space-y-8"
+                >
+                  {/* TAB: CORE */}
+                  {activeTab === 'core' && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <Field label="Project Title" name="title" value={form.title} onChange={handleChange} required placeholder="e.g. Horizon AI Engine" />
+                      <Field label="URL Selector (Slug)" name="slug" value={form.slug} onChange={handleChange} required placeholder="horizon-ai-engine" />
+                      <Field label="Subtitle / Brief" name="subtitle" value={form.subtitle} onChange={handleChange} colSpan="2" placeholder="The core intelligence behind Hodal's next gen apps" />
+                      <div className="grid grid-cols-2 gap-4 col-span-2">
+                        <Select label="Category" name="category" value={form.category} onChange={handleChange} options={['Web Ecosystem', 'Mobile Innovation', 'AI / ML', 'Cloud Arch', 'Enterprise']} />
+                        <Field label="Project Year" name="year" value={form.year} onChange={handleChange} />
+                        <Field label="Status" name="status" value={form.status} onChange={handleChange} placeholder="e.g. Live, Development" />
+                        <Field label="Execution Role" name="role" value={form.role} onChange={handleChange} placeholder="Lead Engineer" />
+                        <Field label="Team Dynamic" name="team" value={form.team} onChange={handleChange} placeholder="Solitary or Team name" />
+                        <Field label="Render Order" type="number" name="order" value={form.order} onChange={handleChange} />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 col-span-2">
+                         <div className="flex items-center gap-3 p-4 rounded-2xl bg-primary-500/10 border border-primary-500/20">
+                            <input type="checkbox" id="featured" name="featured" checked={form.featured} onChange={handleChange} className="w-5 h-5 rounded border-inherit text-primary-500" />
+                            <label htmlFor="featured" className="text-sm font-black uppercase text-primary-500">Feature on Frontline</label>
+                         </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB: NARRATIVE */}
+                  {activeTab === 'narrative' && (
+                    <div className="space-y-8">
+                       <Area label="Short Description (Listing)" name="description" value={form.description} onChange={handleChange} required rows={3} />
+                       <Area label="Project Overview (Full)" name="overview" value={form.overview} onChange={handleChange} rows={6} />
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <Area label="The Challenge" name="challenge" value={form.challenge} onChange={handleChange} rows={4} />
+                          <Area label="The Solution" name="solution" value={form.solution} onChange={handleChange} rows={4} />
+                       </div>
+                       
+                       {/* Features list */}
+                       <div className="space-y-4">
+                          <div className="flex items-center justify-between">
+                             <h4 className="text-sm font-black uppercase tracking-widest text-primary-500">Key Features</h4>
+                             <button type="button" onClick={() => addArrayItem('features', { title: '', description: '' })} className="p-2 bg-primary-500/10 rounded-lg text-primary-500 hover:bg-primary-500/20 transition-all">
+                                <Icon icon="fluent:add-24-filled" />
+                             </button>
+                          </div>
+                          <div className="grid gap-4">
+                             {form.features.map((f, i) => (
+                                <div key={i} className="flex gap-4 p-4 rounded-2xl bg-white/5 border border-white/5">
+                                   <div className="flex-1 space-y-2">
+                                      <input className="w-full bg-transparent border-b border-white/10 py-1 outline-none text-sm font-bold" placeholder="Feature Title" value={f.title} onChange={e => handleArrayChange('features', i, 'title', e.target.value)} />
+                                      <textarea className="w-full bg-transparent py-1 outline-none text-xs opacity-70" placeholder="Feature Description" rows={2} value={f.description} onChange={e => handleArrayChange('features', i, 'description', e.target.value)} />
+                                   </div>
+                                   <button type="button" onClick={() => removeArrayItem('features', i)} className="text-rose-500 mt-2"><Icon icon="fluent:delete-24-regular" /></button>
+                                </div>
+                             ))}
+                          </div>
+                       </div>
+                    </div>
+                  )}
+
+                  {/* TAB: TECH & LINKS */}
+                  {activeTab === 'tech' && (
+                    <div className="space-y-8">
+                       <Field label="Main Tech Stack (Comma separated)" value={form.tech.join(', ')} onChange={e => setForm(prev => ({ ...prev, tech: e.target.value.split(',').map(s => s.trim()) }))} placeholder="React, Node.js, MongoDB" />
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <Field label="GitHub Repo" name="links.github" value={form.links.github} onChange={handleChange} icon="mdi:github" placeholder="https://github.com..." />
+                          <Field label="Live URL" name="links.live" value={form.links.live} onChange={handleChange} icon="fluent:globe-24-regular" placeholder="https://..." />
+                          <Field label="Demo Video" name="links.demo" value={form.links.demo} onChange={handleChange} icon="fluent:play-24-regular" />
+                          <Field label="Documentation" name="links.docs" value={form.links.docs} onChange={handleChange} icon="fluent:book-24-regular" />
+                       </div>
+
+                       {/* Architecture */}
+                       <div className="space-y-4">
+                          <div className="flex items-center justify-between">
+                             <h4 className="text-sm font-black uppercase tracking-widest text-primary-500">System Architecture</h4>
+                             <button type="button" onClick={() => addArrayItem('architecture', { layer: '', tech: '' })} className="p-2 bg-primary-500/10 rounded-lg"><Icon icon="fluent:add-24-filled" /></button>
+                          </div>
+                          {form.architecture.map((a, i) => (
+                             <div key={i} className="flex gap-4 items-center">
+                                <input className="flex-1 p-3 rounded-xl bg-white/5 border border-white/10 outline-none text-xs" placeholder="Layer (e.g. Frontend)" value={a.layer} onChange={e => handleArrayChange('architecture', i, 'layer', e.target.value)} />
+                                <input className="flex-1 p-3 rounded-xl bg-white/5 border border-white/10 outline-none text-xs" placeholder="Tech Used" value={a.tech} onChange={e => handleArrayChange('architecture', i, 'tech', e.target.value)} />
+                                <button type="button" onClick={() => removeArrayItem('architecture', i)} className="text-rose-500"><Icon icon="fluent:delete-24-regular" /></button>
+                             </div>
+                          ))}
+                       </div>
+                    </div>
+                  )}
+
+                  {/* TAB: MEDIA */}
+                  {activeTab === 'media' && (
+                    <div className="space-y-8">
+                       <div className="p-10 border-2 border-dashed border-primary-500/20 rounded-3xl text-center bg-primary-500/5 hover:bg-primary-500/10 transition-all group relative">
+                          <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleFileUpload} disabled={uploading || !project?._id} />
+                          <Icon icon="fluent:cloud-arrow-up-24-filled" width="48" className="mx-auto text-primary-500 mb-4 group-hover:scale-110 transition-transform" />
+                          <p className="font-black text-primary-500 uppercase tracking-widest text-xs mb-2">{uploading ? 'Processing Image Pipeline...' : 'Propagate Images to Cloudinary'}</p>
+                          <p className="text-[10px] opacity-40 uppercase font-black">{project?._id ? 'Click or Drag images here' : 'Save project details first to enable image upload'}</p>
+                       </div>
+
+                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
+                          {form.images.map((img, i) => (
+                             <div key={i} className={`relative group aspect-[16/10] rounded-[2rem] overflow-hidden border ${img.isFeatured ? 'border-primary-500 ring-2 ring-primary-500/20' : 'border-white/10'}`}>
+                                <img src={img.url} className="w-full h-full object-cover" alt="Gallery" />
+                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                                   <button type="button" onClick={() => handleSetFeatured(img.publicId)} className={`p-2 rounded-lg ${img.isFeatured ? 'bg-primary-500' : 'bg-white/10'} hover:scale-110`} title="Set Featured">
+                                      <Icon icon="fluent:star-24-filled" className="text-white" />
+                                   </button>
+                                   <button type="button" onClick={() => handleDeleteImage(img.publicId)} className="p-2 rounded-lg bg-rose-500 hover:scale-110" title="Delete">
+                                      <Icon icon="fluent:delete-24-filled" className="text-white" />
+                                   </button>
+                                </div>
+                                {img.isFeatured && <span className="absolute top-3 left-3 px-2 py-0.5 bg-primary-500 text-[8px] font-black text-white rounded-md uppercase">Core Visual</span>}
+                             </div>
+                          ))}
+                       </div>
+                    </div>
+                  )}
+
+                  {/* TAB: LOCALIZATION */}
+                  {activeTab === 'trans' && (
+                    <div className="space-y-12">
+                       <h3 className="text-xs font-black uppercase tracking-widest text-primary-500 border-l-4 border-primary-500 pl-4 py-1">French Translations</h3>
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pl-4">
+                          <Field label="Titre Français" name="titleFr" value={form.titleFr} onChange={handleChange} />
+                          <Field label="Sous-titre" name="subtitleFr" value={form.subtitleFr} onChange={handleChange} />
+                          <Area label="Description Courte" name="descriptionFr" value={form.descriptionFr} onChange={handleChange} colSpan="2" />
+                       </div>
+                       
+                       <h3 className="text-xs font-black uppercase tracking-widest text-cyan-500 border-l-4 border-cyan-500 pl-4 py-1">Swahili & Kinyarwanda</h3>
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pl-4">
+                          <Field label="Title (Swahili)" name="titleSw" value={form.titleSw} onChange={handleChange} />
+                          <Field label="Title (Kinyarwanda)" name="titleRw" value={form.titleRw} onChange={handleChange} />
+                          <Area label="Summary (Swahili)" name="descriptionSw" value={form.descriptionSw} onChange={handleChange} />
+                          <Area label="Summary (Kinyarwanda)" name="descriptionRw" value={form.descriptionRw} onChange={handleChange} />
+                       </div>
+                    </div>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </form>
+          </div>
+
+          {/* Footer Persistence */}
+          <div className={`px-8 py-6 border-t border-inherit flex items-center justify-between ${isDark ? 'bg-slate-950/50' : 'bg-slate-50'}`}>
+            <div className="flex items-center gap-4">
+              <span className={`text-[10px] font-black uppercase tracking-widest ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Integrity Check: {errors.message ? 'Fail' : 'Passed'}</span>
+               {errors.message && <p className="text-xs text-rose-500 font-bold">{errors.message}</p>}
+            </div>
+            <div className="flex items-center gap-4">
+              <button onClick={onClose} className={`px-6 py-2.5 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all ${isDark ? 'text-slate-400 hover:bg-white/5' : 'text-slate-600 hover:bg-slate-100'}`}>Exit Session</button>
+              <button 
+                type="submit" 
+                form="project-form" 
+                disabled={loading}
+                className="px-8 py-3 bg-gradient-to-r from-primary-500 to-violet-500 rounded-xl font-black uppercase tracking-widest text-xs text-white shadow-xl shadow-primary-500/25 hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
+              >
+                {loading ? 'Propagating...' : (project ? 'Commit Changes' : 'Initialize Project')}
+              </button>
+            </div>
+          </div>
         </div>
       </motion.div>
     </div>
   );
 };
 
-const DashboardProjects = () => {
-  const { user } = useOutletContext();
-  const { isDark } = useTheme();
-  const isAdmin = user?.roles?.includes('admin');
+/** ──────────────────────── Main Dashboard Component ──────────────────────── */
 
+const DashboardProjects = () => {
+  const { isDark } = useTheme();
+  const { t } = useLanguage();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const [editingProject, setEditingProject] = useState(null);
-  const [toast, setToast] = useState(null);
-  const [filter, setFilter] = useState({ search: '', category: 'all' });
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState('All');
 
-  const showToast = (message, type = 'success') => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
-  };
-
-  useEffect(() => {
-    fetchProjects(50).then(setProjects).catch((err) => setError(err.message)).finally(() => setLoading(false));
+  const loadProjects = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await fetchProjects();
+      setProjects(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const handleDelete = async (id, title) => {
-    if (!confirm(`Are you absolutely sure you want to delete "${title}"? This action cannot be undone.`)) return;
+  useEffect(() => {
+    loadProjects();
+  }, [loadProjects]);
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Executing permanent deletion sequence. Proceed?')) return;
     try {
       await deleteProject(id);
-      setProjects((prev) => prev.filter((p) => p._id !== id));
-      showToast(`Project permanently removed`);
-    } catch (err) {
-      showToast(err.message || 'Failed to delete', 'error');
-    }
+      setProjects(prev => prev.filter(p => p._id !== id));
+    } catch (err) { alert('Deletion intercepted/failed'); }
   };
 
   const filteredProjects = projects.filter(p => {
-    const matchesSearch = p.title.toLowerCase().includes(filter.search.toLowerCase()) || 
-                          p.category?.toLowerCase().includes(filter.search.toLowerCase());
-    const matchesCat = filter.category === 'all' || p.category === filter.category;
-    return matchesSearch && matchesCat;
+    const matchesSearch = p.title.toLowerCase().includes(search.toLowerCase()) || p.description.toLowerCase().includes(search.toLowerCase());
+    const matchesCategory = filter === 'All' || p.category === filter;
+    return matchesSearch && matchesCategory;
   });
 
-  const categories = ['all', ...new Set(projects.map(p => p.category).filter(Boolean))];
-
-  const statusColors = {
-    'live': 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
-    'in-progress': 'bg-amber-500/10 text-amber-500 border-amber-500/20',
-    'archived': 'bg-slate-500/10 text-slate-500 border-slate-500/20',
-    'draft': 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20',
-  };
+  const categories = ['All', ...new Set(projects.map(p => p.category).filter(Boolean))];
 
   return (
-    <div className="space-y-10 max-w-[1400px] mx-auto">
-      {toast && (
-        <div className={`fixed top-4 right-4 z-[110] px-6 py-4 rounded-2xl text-white text-xs font-black uppercase tracking-widest shadow-2xl flex items-center gap-3 animate-in slide-in-from-right-4 duration-300 ${
-          toast.type === 'error' ? 'bg-rose-500' : 'bg-emerald-500'
-        }`}>
-          <Icon icon={toast.type === 'error' ? 'fluent:warning-24-filled' : 'fluent:checkmark-24-filled'} width="22" />
-          {toast.message}
-        </div>
-      )}
-
-      {showModal && (
-        <ProjectModal 
-          editingProject={editingProject}
-          onClose={() => { setShowModal(false); setEditingProject(null); }} 
-          onSave={(p) => {
-            if (editingProject) {
-                setProjects(prev => prev.map(item => item._id === p._id ? p : item));
-                showToast(`Changes saved successfully`);
-            } else {
-                setProjects((prev) => [p, ...prev]);
-                showToast(`Project published!`);
-            }
-          }} 
-        />
-      )}
-
-      {/* Hero Header */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-4">
+    <div className="space-y-8 animate-in fade-in duration-700">
+      {/* Header Deck */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className={`text-5xl font-black tracking-tighter mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-            Project <span className="text-primary-500">Command</span>
-          </h1>
-          <div className="flex items-center gap-6">
-            <div className={`px-4 py-2 rounded-2xl border ${isDark ? 'bg-white/5 border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}>
-              <span className="text-[10px] font-black uppercase tracking-widest block opacity-50 mb-1">Total Assets</span>
-              <span className={`text-xl font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>{loading ? '...' : projects.length}</span>
-            </div>
-            <div className={`px-4 py-2 rounded-2xl border ${isDark ? 'bg-white/5 border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}>
-              <span className="text-[10px] font-black uppercase tracking-widest block opacity-50 mb-1">Featured</span>
-              <span className={`text-xl font-black text-primary-500`}>{loading ? '...' : projects.filter(p => p.featured).length}</span>
-            </div>
-          </div>
+          <h1 className={`text-3xl font-black mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>Master Project Vault</h1>
+          <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Manage, refine, and deploy new entities to your portfolio ecosystem.</p>
         </div>
-        
-        {isAdmin && (
-          <button
-            onClick={() => { setEditingProject(null); setShowModal(true); }}
-            className="group flex items-center gap-4 px-8 py-5 bg-primary-500 hover:bg-primary-600 text-white rounded-[2rem] font-black uppercase tracking-[0.2em] text-xs transition-all shadow-2xl shadow-primary-500/40 hover:-translate-y-1 active:translate-y-0"
-          >
-            <Icon icon="fluent:add-24-filled" width="24" className="transition-transform group-hover:rotate-90" />
-            New Workspace
-          </button>
-        )}
+        <button 
+          onClick={() => { setSelectedProject(null); setIsModalOpen(true); }}
+          className="flex items-center gap-3 px-6 py-3 bg-primary-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary-500/25 hover:scale-105 active:scale-95 transition-all"
+        >
+          <Icon icon="fluent:add-24-filled" width="20" />
+          Manifest New Project
+        </button>
       </div>
 
-      {/* Filters */}
-      <div className={`p-4 rounded-[2rem] border backdrop-blur-3xl flex flex-col md:flex-row gap-4 ${
-        isDark ? 'bg-white/5 border-white/5' : 'bg-white border-slate-200 shadow-xl shadow-slate-200/50'
-      }`}>
-        <div className="flex-1 relative">
-           <input 
-             type="text" 
-             placeholder="Search projects by title or technology..."
-             value={filter.search}
-             onChange={(e) => setFilter(prev => ({ ...prev, search: e.target.value }))}
-             className={`w-full pl-12 pr-4 py-4 rounded-2xl text-sm font-bold outline-none transition-all ${
-               isDark ? 'bg-white/5 text-white focus:bg-white/10' : 'bg-slate-50 text-slate-900 focus:bg-white focus:ring-2 ring-primary-500/10'
-             }`}
-           />
-           <Icon icon="fluent:search-24-regular" className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" width="22" />
+      {/* Control Panel */}
+      <div className={`p-4 rounded-3xl border flex flex-col md:flex-row items-center gap-4 ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'}`}>
+        <div className="relative flex-1 group">
+          <Icon icon="fluent:search-24-regular" className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" width="20" />
+          <input 
+            type="text" 
+            placeholder="Search the vault..." 
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className={`w-full pl-12 pr-4 py-3 rounded-2xl outline-none text-sm font-medium transition-all ${isDark ? 'bg-white/5 border border-white/5 text-white focus:border-primary-500' : 'bg-slate-50 border border-slate-100 text-slate-900 focus:border-primary-500'}`}
+          />
         </div>
-        <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+        <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 w-full md:w-auto">
            {categories.map(cat => (
-             <button
-               key={cat}
-               onClick={() => setFilter(prev => ({ ...prev, category: cat }))}
-               className={`px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border ${
-                 filter.category === cat 
-                   ? 'bg-primary-500 text-white border-primary-500 shadow-lg shadow-primary-500/30' 
-                   : (isDark ? 'bg-white/5 text-slate-500 border-white/5 hover:text-white' : 'bg-white text-slate-600 border-slate-200 hover:border-primary-500')
-               }`}
-             >
-               {cat}
-             </button>
+              <button 
+                key={cat} 
+                onClick={() => setFilter(cat)}
+                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+                  filter === cat 
+                    ? 'bg-primary-500 text-white shadow-lg' 
+                    : isDark ? 'bg-white/5 text-slate-400 hover:bg-white/10' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
+                }`}
+              >
+                {cat}
+              </button>
            ))}
         </div>
       </div>
 
-      {error && <div className="p-8 bg-rose-500/10 border-2 border-dashed border-rose-500/30 rounded-[2.5rem] text-rose-500 text-center flex flex-col items-center gap-4">
-        <Icon icon="fluent:error-circle-24-filled" width="48" />
-        <p className="font-black uppercase tracking-widest text-sm">{error}</p>
-        <button onClick={() => window.location.reload()} className="px-6 py-2 bg-rose-500 text-white rounded-xl text-xs font-bold">Retry Connection</button>
-      </div>}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-        <AnimatePresence>
-        {loading ? (
-          Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className={`h-[480px] rounded-[3rem] animate-pulse ${isDark ? 'bg-white/5' : 'bg-slate-100'}`} />
-          ))
-        ) : filteredProjects.length === 0 ? (
-          <div className="col-span-full py-40 flex flex-col items-center justify-center text-center opacity-40">
-            <Icon icon="fluent:box-24-regular" width="120" className="mb-8" />
-            <h3 className="text-3xl font-black uppercase tracking-tighter">No Segments Found</h3>
-            <p className="font-bold text-sm mt-4">Adjust your filters or initiate a new project</p>
-          </div>
-        ) : filteredProjects.map((p) => (
-          <motion.div 
-            layout
-            key={p._id} 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className={`flex flex-col rounded-[3rem] border group overflow-hidden transition-all duration-500 hover:shadow-[0_40px_80px_-24px_rgba(0,0,0,0.5)] ${
-              isDark ? 'bg-slate-900 border-white/5' : 'bg-white border-slate-200 shadow-xl shadow-slate-200/30'
-            }`}
-          >
-            {/* Visual Container */}
-            <div className="relative h-64 overflow-hidden shrink-0">
-               <div className={`absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10`} />
-               {p.image ? (
-                 <img src={p.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={p.title} />
-               ) : (
-                 <div className={`w-full h-full bg-gradient-to-br ${p.gradient || 'from-slate-700 to-slate-900'} flex items-center justify-center`}>
-                    <Icon icon={p.image || 'fluent:box-24-filled'} width="80" className="text-white/10" />
-                 </div>
-               )}
-               
-               <div className="absolute top-6 left-6 z-20 flex flex-col gap-2">
-                  <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border backdrop-blur-md shadow-lg ${statusColors[p.status] || 'bg-white/10 text-white border-white/20'}`}>
-                    {p.status || 'system'}
-                  </span>
-                  {p.featured && (
-                    <span className="w-8 h-8 rounded-full bg-primary-500 flex items-center justify-center text-white shadow-lg border-2 border-white/20">
-                       <Icon icon="fluent:star-24-filled" width="16" />
-                    </span>
-                  )}
-               </div>
-
-               <div className="absolute bottom-6 left-8 right-8 z-20">
-                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/60 mb-1">{p.category}</p>
-                  <h3 className="text-2xl font-black text-white tracking-tight truncate leading-none">{p.title}</h3>
-               </div>
-            </div>
-
-            {/* Content Container */}
-            <div className="p-8 flex-1 flex flex-col">
-              <p className={`text-sm font-medium leading-relaxed mb-6 flex-1 line-clamp-3 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                {p.description}
-              </p>
-
-              {p.tech?.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-8">
-                  {p.tech.slice(0, 5).map((t) => (
-                    <span key={t} className={`text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-lg border ${
-                      isDark ? 'bg-white/5 border-white/5 text-slate-500' : 'bg-slate-50 border-slate-200 text-slate-600'
-                    }`}>{t}</span>
-                  ))}
-                  {p.tech.length > 5 && <span className="text-[10px] font-black text-primary-500">+{p.tech.length - 5}</span>}
-                </div>
-              )}
-
-              {/* Action Bar */}
-              <div className={`flex items-center gap-2 pt-6 border-t ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
-                <div className="flex items-center gap-3">
-                  {p.links?.live && (
-                    <a href={p.links.live} target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-xl bg-primary-500/10 text-primary-500 hover:bg-primary-500 hover:text-white transition-all">
-                      <Icon icon="fluent:globe-24-regular" width="18" />
-                    </a>
-                  )}
-                  {p.links?.github && (
-                    <a href={p.links.github} target="_blank" rel="noopener noreferrer" className={`p-2.5 rounded-xl transition-all ${
-                      isDark ? 'bg-white/5 text-slate-400 hover:text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-900 hover:text-white'
-                    }`}>
-                      <Icon icon="mdi:github" width="18" />
-                    </a>
-                  )}
+      {/* Loading State */}
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+           {[1,2,3,4,5,6].map(i => (
+             <div key={i} className={`aspect-[16/11] rounded-[2.5rem] animate-pulse ${isDark ? 'bg-white/5' : 'bg-slate-100'}`} />
+           ))}
+        </div>
+      ) : projects.length === 0 ? (
+        <div className={`py-32 rounded-[2.5rem] border-2 border-dashed flex flex-col items-center justify-center gap-6 ${isDark ? 'border-white/5 bg-white/2' : 'border-slate-100 bg-slate-50'}`}>
+           <Icon icon="fluent:box-24-regular" width="80" className="opacity-10" />
+           <p className="font-black opacity-30 uppercase tracking-[0.3em] text-xs">Project Vault Empty</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-12">
+           {filteredProjects.map(p => (
+             <motion.div 
+               key={p._id} 
+               layoutId={p._id}
+               className={`group relative overflow-hidden rounded-[2.5rem] border transition-all duration-500 ${
+                 isDark ? 'bg-slate-900 border-white/5 hover:border-primary-500/30' : 'bg-white border-slate-200 hover:shadow-2xl hover:shadow-primary-500/10'
+               }`}
+             >
+                {/* ID Header Overlay */}
+                <div className="absolute top-4 left-4 z-10">
+                   <span className="px-3 py-1 bg-black/60 backdrop-blur-md rounded-lg text-[8px] font-black uppercase text-white tracking-widest border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity">ID: {p.slug}</span>
                 </div>
 
-                {isAdmin && (
-                  <div className="ml-auto flex items-center gap-2">
-                    <button
-                      onClick={() => { setEditingProject(p); setShowModal(true); }}
-                      className={`p-3 rounded-2xl transition-all ${isDark ? 'hover:bg-indigo-500/20 text-indigo-400' : 'hover:bg-indigo-50 text-indigo-600'}`}
-                      title="Edit Specs"
-                    >
-                      <Icon icon="fluent:edit-24-filled" width="20" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(p._id, p.title)}
-                      className={`p-3 rounded-2xl transition-all ${isDark ? 'hover:bg-rose-500/20 text-rose-400' : 'hover:bg-rose-50 text-rose-500'}`}
-                      title="Terminate Project"
-                    >
-                      <Icon icon="fluent:delete-24-filled" width="20" />
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </motion.div>
-        ))}
-        </AnimatePresence>
+                <div className="aspect-[16/10] relative overflow-hidden">
+                   <img 
+                    src={p.images?.find(img => img.isFeatured)?.url || p.image || 'https://res.cloudinary.com/dqd87p5cz/image/upload/v1774208280/TimtomAviation_sx1mrm.png'} 
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                    alt={p.title} 
+                   />
+                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
+                   
+                   <div className="absolute top-4 right-4 flex gap-2">
+                       <button onClick={() => { setSelectedProject(p); setIsModalOpen(true); }} className="p-2.5 bg-white/10 backdrop-blur-xl border border-white/10 rounded-xl text-white hover:bg-primary-500 hover:border-primary-500 transition-all shadow-xl">
+                          <Icon icon="fluent:edit-24-filled" width="18" />
+                       </button>
+                       <button onClick={() => handleDelete(p._id)} className="p-2.5 bg-white/10 backdrop-blur-xl border border-white/10 rounded-xl text-white hover:bg-rose-500 hover:border-rose-500 transition-all shadow-xl">
+                          <Icon icon="fluent:delete-24-filled" width="18" />
+                       </button>
+                   </div>
+                </div>
+
+                <div className="p-6 space-y-3">
+                   <div className="flex items-center justify-between gap-4">
+                      <span className="px-2.5 py-1 bg-primary-500/10 text-primary-500 rounded-lg text-[9px] font-black uppercase tracking-widest">{p.category}</span>
+                      <span className={`text-[9px] font-black uppercase opacity-60 flex items-center gap-1`}>
+                         <div className={`w-1.5 h-1.5 rounded-full ${p.status?.toLowerCase().includes('live') ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                         {p.status}
+                      </span>
+                   </div>
+                   <h3 className={`text-xl font-black truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>{p.title}</h3>
+                   <p className={`text-xs line-clamp-2 leading-relaxed opacity-60 font-medium ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>{p.description}</p>
+                   
+                   <div className="flex flex-wrap gap-2 pt-2">
+                      {(p.tech || []).slice(0, 3).map((t, i) => (
+                         <span key={i} className="text-[8px] font-black uppercase tracking-widest opacity-40">{t}{i < 2 && ' /'}</span>
+                      ))}
+                   </div>
+                </div>
+             </motion.div>
+           ))}
+        </div>
+      )}
+
+      {/* Persistence Modals */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <ProjectModal 
+            project={selectedProject} 
+            isOpen={isModalOpen} 
+            onClose={() => setIsModalOpen(false)}
+            onSave={loadProjects}
+          />
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+// ──────────────────────── Helper Components ────────────────────────
+
+const Field = ({ label, name, value, onChange, type = 'text', required = false, colSpan = '1', placeholder = '', icon = null }) => {
+  const { isDark } = useTheme();
+  return (
+    <div className={colSpan === '2' ? 'col-span-1 md:col-span-2' : ''}>
+      <label className={`block text-[10px] font-extrabold uppercase tracking-widest mb-2 px-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+        {label} {required && <span className="text-rose-500">*</span>}
+      </label>
+      <div className="relative group">
+        {icon && <Icon icon={icon} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" width="18" />}
+        <input
+          type={type}
+          name={name}
+          value={value}
+          onChange={onChange}
+          required={required}
+          placeholder={placeholder}
+          className={`w-full px-4 py-3 rounded-2xl outline-none transition-all font-bold text-sm ${icon ? 'pl-12' : ''} ${
+            isDark 
+              ? 'bg-slate-800/50 border border-white/5 text-white focus:border-primary-500 focus:bg-slate-800' 
+              : 'bg-slate-50 border border-slate-100 text-slate-900 focus:border-primary-500 focus:bg-white'
+          }`}
+        />
       </div>
+    </div>
+  );
+};
+
+const Area = ({ label, name, value, onChange, required = false, rows = 4, colSpan = '1', placeholder = '' }) => {
+  const { isDark } = useTheme();
+  return (
+    <div className={colSpan === '2' ? 'col-span-1 md:col-span-2' : ''}>
+      <label className={`block text-[10px] font-extrabold uppercase tracking-widest mb-2 px-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+        {label} {required && <span className="text-rose-500">*</span>}
+      </label>
+      <textarea
+        name={name}
+        value={value}
+        onChange={onChange}
+        required={required}
+        rows={rows}
+        placeholder={placeholder}
+        className={`w-full px-5 py-4 rounded-3xl outline-none transition-all font-medium text-sm leading-relaxed ${
+          isDark 
+            ? 'bg-primary-500/5 border border-white/5 text-white focus:border-primary-500 focus:bg-slate-800' 
+            : 'bg-slate-50 border border-slate-100 text-slate-900 focus:border-primary-500 focus:bg-white'
+        }`}
+      />
+    </div>
+  );
+};
+
+const Select = ({ label, name, value, onChange, options }) => {
+  const { isDark } = useTheme();
+  return (
+    <div>
+      <label className={`block text-[10px] font-extrabold uppercase tracking-widest mb-2 px-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{label}</label>
+      <select
+        name={name}
+        value={value}
+        onChange={onChange}
+        className={`w-full px-4 py-3 rounded-2xl outline-none font-black uppercase tracking-widest text-[10px] appearance-none cursor-pointer ${
+          isDark ? 'bg-slate-800/50 border border-white/5 text-slate-300' : 'bg-slate-50 border border-slate-100 text-slate-600'
+        }`}
+      >
+        {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+      </select>
     </div>
   );
 };

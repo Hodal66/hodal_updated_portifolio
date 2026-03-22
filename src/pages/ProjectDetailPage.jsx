@@ -96,13 +96,15 @@ const ProjectDetailPage = () => {
     }
   };
 
-  const renderVisual = () => {
-    if (project.image?.startsWith('http') || project.image?.startsWith('/')) {
-        return <img src={project.image} alt={project.title} className="w-full h-full object-cover rounded-[2.5rem] shadow-2xl" />;
+  const featuredImage = project.images?.find(img => img.isFeatured)?.url || project.image || 'https://res.cloudinary.com/dqd87p5cz/image/upload/v1774208280/TimtomAviation_sx1mrm.png';
+
+  const renderVisual = (imgUrl = featuredImage) => {
+    if (imgUrl?.startsWith('http') || imgUrl?.startsWith('/')) {
+        return <img src={imgUrl} alt={project.title} className="w-full h-full object-cover rounded-[2.5rem] shadow-2xl" />;
     }
     return (
       <div className="w-full h-full bg-white/10 backdrop-blur-md rounded-[2.5rem] flex items-center justify-center text-5xl border border-white/20 shadow-2xl">
-         {project.image?.includes(':') ? <Icon icon={project.image} width="64" /> : project.image}
+         {(imgUrl?.includes(':') || !imgUrl) ? <Icon icon={imgUrl || 'fluent:image-24-filled'} width="64" /> : imgUrl}
       </div>
     );
   };
@@ -197,8 +199,8 @@ const ProjectDetailPage = () => {
             {project.metrics && Object.keys(project.metrics).length > 0 && (
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-24 relative z-20">
                 {Object.entries(project.metrics).map(([key, data], i) => {
-                  const itemValue = data.value !== undefined ? data.value : data;
-                  const itemLabel = data.label !== undefined ? data.label : data;
+                  const itemValue = typeof data === 'object' ? data.value : data;
+                  const itemLabel = typeof data === 'object' ? data.label : key;
                   return (
                     <div key={i} className={`group p-8 rounded-[2.5rem] flex flex-col items-center justify-center text-center transition-all duration-500 border ${
                       isDark 
@@ -262,6 +264,36 @@ const ProjectDetailPage = () => {
                     </div>
                   )}
                 </div>
+
+                {/* Gallery Section */}
+                {project.images && project.images.length > 1 && (
+                  <div className="space-y-10">
+                    <div className="flex items-center gap-4">
+                       <div className="w-12 h-12 bg-primary-500/10 rounded-2xl flex items-center justify-center text-primary-500">
+                          <Icon icon="fluent:image-multiple-24-filled" width="24" />
+                       </div>
+                       <h2 className={`text-3xl font-black tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>Visual Gallery</h2>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      {project.images.filter(img => !img.isFeatured).map((img, i) => (
+                        <motion.div 
+                          key={i}
+                          initial={{ opacity: 0, y: 20 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          viewport={{ once: true }}
+                          className="group relative aspect-[16/10] rounded-[2rem] overflow-hidden border border-inherit shadow-lg"
+                        >
+                           <img src={img.url} alt={img.caption || project.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                           {img.caption && (
+                             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
+                               <p className="text-white text-xs font-bold uppercase tracking-widest">{img.caption}</p>
+                             </div>
+                           )}
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Features Section */}
                 {project.features && project.features.length > 0 && (

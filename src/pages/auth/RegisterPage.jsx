@@ -4,7 +4,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { Icon } from '@iconify/react';
-import logo from '../../assets/HodalTechLogo.png';
+const logo = "https://res.cloudinary.com/dqd87p5cz/image/upload/v1774207737/HodalTechLogo_xrm8ah.png";
 
 const RegisterPage = () => {
   const { isDark } = useTheme();

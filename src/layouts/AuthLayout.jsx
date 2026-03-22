@@ -5,7 +5,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Footer } from '../components';
-import authBg from '../assets/auth-side-logo.png';
+const authBg = "https://res.cloudinary.com/dqd87p5cz/image/upload/v1774207738/auth-side-logo_zmvqbu.jpg";
 
 const AuthLayout = () => {
   const { isDark } = useTheme();

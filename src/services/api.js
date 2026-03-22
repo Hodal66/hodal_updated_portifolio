@@ -152,14 +152,30 @@ export const updateProject = (projectId, projectData) =>
 export const deleteProject = (projectId) =>
   request(`/projects/${projectId}`, { method: 'DELETE' });
 
-export const uploadProjectImage = (projectId, file) => {
+export const uploadProjectImage = (projectId, file, isFeatured = false, caption = '') => {
   const formData = new FormData();
   formData.append('image', file);
-  return request(`/projects/${projectId}/image`, {
-    method: 'PATCH',
+  formData.append('isFeatured', String(isFeatured));
+  if (caption) formData.append('caption', caption);
+  return request(`/projects/${projectId}/images`, {
+    method: 'POST',
     body: formData,
   });
 };
+
+export const deleteProjectImage = (projectId, publicId) => {
+  // base64-encode the publicId so slashes (e.g. HodalTech/Projects/img) don't break the URL
+  const encoded = btoa(publicId);
+  return request(`/projects/${projectId}/images/${encoded}`, { method: 'DELETE' });
+};
+
+export const setFeaturedProjectImage = (projectId, publicId) => {
+  const encoded = btoa(publicId);
+  return request(`/projects/${projectId}/images/${encoded}/featured`, { method: 'PATCH' });
+};
+
+export const fetchProjectBySlug = (slug) => request(`/projects/${slug}`);
+
 
 // ────────────────────────────── Dashboard API ──────────────────────────────
 
