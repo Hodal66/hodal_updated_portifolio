@@ -2,6 +2,7 @@ import React from 'react';
 import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import Sidebar from '../components/dashboard/Sidebar';
 import Navbar from '../components/dashboard/Navbar';
+import IncomingCallModal from '../components/dashboard/IncomingCallModal';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -44,6 +45,7 @@ const DashboardLayout = () => {
             </motion.div>
           </AnimatePresence>
         </main>
+        <IncomingCallModal />
       </div>
     </div>
   );

@@ -106,6 +106,15 @@ export const updateMe = (data) =>
     body: JSON.stringify(data),
   });
 
+export const updateAvatar = (file) => {
+  const formData = new FormData();
+  formData.append('avatar', file);
+  return request('/users/me/avatar', {
+    method: 'PATCH',
+    body: formData,
+  });
+};
+
 export const getUsers = (limit = 20, skip = 0, search = '') => {
   const searchParam = search ? `&search=${search}` : '';
   return request(`/users?limit=${limit}&skip=${skip}${searchParam}`);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useNavigate } from 'react-router-dom';
 import { Icon } from '@iconify/react';
 import { 
   getInboxes, 
@@ -18,6 +18,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import EmojiPicker from 'emoji-picker-react';
 
 const DashboardMessages = () => {
+  const navigate = useNavigate();
   const { user } = useOutletContext();
   const { isDark } = useTheme();
   const socket = useSocket();
@@ -319,10 +320,11 @@ const DashboardMessages = () => {
 
     try {
       const call = await startCall(otherUser._id, type);
-      if (otherUser.phoneNumber) {
-        window.location.href = `tel:${otherUser.phoneNumber}`;
-      } else {
-        alert(`${otherUser.name} does not have a phone number saved. Reaching out via ${type} call log...`);
+      navigate(`/dashboard/meeting/${call._id}`);
+      
+      // Optional: keep tel: for phone dialing if voice
+      if (otherUser.phoneNumber && type === 'voice') {
+        // window.location.href = `tel:${otherUser.phoneNumber}`;
       }
     } catch (err) {
       console.error('Failed to initiate call', err);

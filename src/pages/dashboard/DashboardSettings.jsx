@@ -3,7 +3,7 @@ import { useOutletContext } from 'react-router-dom';
 import { Icon } from '@iconify/react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { updateMe } from '../../services/api';
+import { updateMe, updateAvatar } from '../../services/api';
 
 const DashboardSettings = () => {
   const { user } = useOutletContext();
@@ -12,6 +12,7 @@ const DashboardSettings = () => {
 
   const [form, setForm] = useState({ name: user?.name || '', email: user?.email || '' });
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [toast, setToast] = useState(null);
 
   const showToast = (message, type = 'success') => {
@@ -32,6 +33,25 @@ const DashboardSettings = () => {
       showToast(err.message || 'Failed to update profile', 'error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) return showToast('File too large. Max 5MB', 'error');
+    if (!file.type.startsWith('image/')) return showToast('Please upload an image', 'error');
+
+    setUploading(true);
+    try {
+      const { user: updatedUser } = await updateAvatar(file);
+      updateUser(updatedUser);
+      showToast('Avatar updated successfully');
+    } catch (err) {
+      showToast(err.message || 'Failed to upload avatar', 'error');
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -63,6 +83,28 @@ const DashboardSettings = () => {
             Profile Information
           </span>
         </h2>
+        
+        {/* Avatar Upload */}
+        <div className="mb-8 flex flex-col items-center sm:flex-row gap-6">
+          <div className="relative group">
+            <div className={`w-24 h-24 rounded-3xl overflow-hidden border-2 ${isDark ? 'border-white/10 bg-white/5' : 'border-slate-100 bg-slate-50'} flex items-center justify-center`}>
+              {user?.avatar ? (
+                <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+              ) : (
+                <Icon icon="fluent:person-24-filled" width="48" className="text-slate-300" />
+              )}
+            </div>
+            <label className="absolute -bottom-2 -right-2 p-2 bg-primary-500 text-white rounded-xl shadow-lg cursor-pointer hover:scale-110 active:scale-95 transition-all">
+              <Icon icon={uploading ? 'fluent:spinner-24-regular' : 'fluent:camera-24-filled'} width="16" className={uploading ? 'animate-spin' : ''} />
+              <input type="file" className="hidden" accept="image/*" onChange={handleAvatarUpload} disabled={uploading} />
+            </label>
+          </div>
+          <div className="text-center sm:text-left">
+            <h3 className={`font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>Profile Picture</h3>
+            <p className="text-xs text-slate-500 mt-1 max-w-[200px]">Update your avatar. JPG, PNG or WebP. Max 5MB.</p>
+          </div>
+        </div>
+
         <form onSubmit={handleSave} className="space-y-4">
           <div>
             <label htmlFor="settings-name" className={labelClass}>Full Name</label>
@@ -72,15 +114,6 @@ const DashboardSettings = () => {
             <label htmlFor="settings-email" className={labelClass}>Email Address</label>
             <input id="settings-email" name="email" value={form.email} className={`${inputClass} opacity-60 cursor-not-allowed`} disabled aria-disabled="true" />
             <p className="text-xs text-slate-500 mt-1">Email cannot be changed directly. Contact support.</p>
-          </div>
-          <div className="flex items-center gap-3 pt-2">
-            <div className={`w-12 h-12 rounded-xl bg-primary-500/10 flex items-center justify-center ${isDark ? 'text-primary-400' : 'text-primary-500'}`}>
-              <Icon icon="fluent:person-24-regular" width="24" />
-            </div>
-            <div>
-              <p className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>{user?.name}</p>
-              <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'} capitalize`}>{user?.roles?.[0]} account</p>
-            </div>
           </div>
           <button
             type="submit"
