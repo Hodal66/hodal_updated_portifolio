@@ -152,6 +152,15 @@ export const updateProject = (projectId, projectData) =>
 export const deleteProject = (projectId) =>
   request(`/projects/${projectId}`, { method: 'DELETE' });
 
+export const uploadProjectImage = (projectId, file) => {
+  const formData = new FormData();
+  formData.append('image', file);
+  return request(`/projects/${projectId}/image`, {
+    method: 'PATCH',
+    body: formData,
+  });
+};
+
 // ────────────────────────────── Dashboard API ──────────────────────────────
 
 export const getDashboardStats = () => request('/dashboard/stats');

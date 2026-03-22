@@ -8,14 +8,25 @@
     scroll-behavior: smooth;
   }
   
+  body {
+    font-family: theme('fontFamily.sans');
+    font-size: theme('fontSize.body');
+    @apply antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: theme('fontFamily.display');
+    @apply font-bold tracking-tight;
+  }
+
   /* Dark mode (default) */
   .dark body {
-    @apply bg-dark-950 text-gray-100 antialiased;
+    @apply bg-dark-950 text-gray-100;
   }
 
   /* Light mode */
   .light body {
-    @apply bg-slate-50 text-slate-800 antialiased;
+    @apply bg-slate-50 text-slate-800;
   }
 
   /* Custom Scrollbar - Dark */
@@ -55,22 +66,6 @@
 
 /* Component Classes */
 @layer components {
-  .btn-primary {
-    @apply px-6 py-3 bg-gradient-to-r from-primary-500 to-cyan-500 rounded-xl font-semibold text-white 
-           transition-all duration-300 hover:shadow-lg hover:shadow-primary-500/25 hover:-translate-y-0.5;
-  }
-
-  /* Dark mode secondary button */
-  .dark .btn-secondary {
-    @apply px-6 py-3 border-2 border-white/20 rounded-xl font-semibold text-white 
-           transition-all duration-300 hover:border-primary-500/50 hover:bg-primary-500/5;
-  }
-
-  /* Light mode secondary button */
-  .light .btn-secondary {
-    @apply px-6 py-3 border-2 border-slate-200 rounded-xl font-semibold text-slate-600 transition-all duration-300 hover:border-primary-500 hover:text-primary-600 hover:bg-primary-50;
-  }
-
   /* Dark mode card */
   .dark .card {
     @apply p-6 bg-gradient-to-br from-white/[0.03] to-transparent border border-white/5 rounded-2xl
@@ -84,21 +79,41 @@
   .card-hover {
     @apply hover:-translate-y-2 hover:shadow-xl hover:shadow-primary-500/10;
   }
+  .btn-primary {
+    @apply px-6 py-3 bg-gradient-to-r from-primary-500 to-cyan-500 rounded-xl font-medium text-white 
+           transition-all duration-300 hover:shadow-lg hover:shadow-primary-500/25 hover:-translate-y-0.5;
+  }
+
+  /* Dark mode secondary button */
+  .dark .btn-secondary {
+    @apply px-6 py-3 border-2 border-white/20 rounded-xl font-medium text-white 
+           transition-all duration-300 hover:border-primary-500/50 hover:bg-primary-500/5;
+  }
+
+  /* Light mode secondary button */
+  .light .btn-secondary {
+    @apply px-6 py-3 border-2 border-slate-200 rounded-xl font-medium text-slate-600 transition-all duration-300 hover:border-primary-500 hover:text-primary-600 hover:bg-primary-50;
+  }
+
+
 
   /* Dark mode section title */
   .dark .section-title {
-    @apply text-3xl md:text-4xl lg:text-5xl font-extrabold bg-gradient-to-r from-white to-gray-400 
+    font-size: theme('fontSize.section');
+    @apply font-bold bg-gradient-to-r from-white to-gray-400 
            bg-clip-text text-transparent;
   }
 
   /* Light mode section title */
   .light .section-title {
-    @apply text-3xl md:text-4xl lg:text-5xl font-extrabold bg-gradient-to-r from-slate-900 to-slate-700
+    font-size: theme('fontSize.section');
+    @apply font-bold bg-gradient-to-r from-slate-900 to-slate-700
            bg-clip-text text-transparent;
   }
 
   .section-subtitle {
-    @apply text-primary-400 font-mono text-sm tracking-wider;
+    font-size: theme('fontSize.caption');
+    @apply text-primary-400 uppercase;
   }
 
   /* Dark mode tech badge */

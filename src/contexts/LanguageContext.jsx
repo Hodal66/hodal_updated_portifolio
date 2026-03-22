@@ -12,10 +12,10 @@ export const useLanguage = () => {
 };
 
 export const languages = [
-  { code: 'en', name: 'English', flag: '🇬🇧' },
-  { code: 'fr', name: 'Français', flag: '🇫🇷' },
-  { code: 'sw', name: 'Kiswahili', flag: '🇹🇿' },
-  { code: 'rw', name: 'Kinyarwanda', flag: '🇷🇼' },
+  { code: 'en', name: 'English', flag: 'https://flagcdn.com/w40/gb.png' },
+  { code: 'fr', name: 'Français', flag: 'https://flagcdn.com/w40/fr.png' },
+  { code: 'sw', name: 'Kiswahili', flag: 'https://flagcdn.com/w40/tz.png' },
+  { code: 'rw', name: 'Kinyarwanda', flag: 'https://flagcdn.com/w40/rw.png' },
 ];
 
 export const LanguageProvider = ({ children }) => {

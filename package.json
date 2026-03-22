@@ -1,8 +1,8 @@
 {
-  "name": "portfolio-29049-tailwind",
+  "name": "muheto-hodal-portfolio",
   "private": true,
   "version": "1.0.0",
-  "description": "Professional Portfolio for Muheto Hodal - Student ID: 29049",
+  "description": "Professional Portfolio for Muheto Hodal - Full-Stack Developer",
   "type": "module",
   "scripts": {
     "dev": "vite",

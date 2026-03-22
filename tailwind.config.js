@@ -36,8 +36,26 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        display: ['Space Grotesk', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+      },
+      fontSize: {
+        'hero': ['3.5rem', { lineHeight: '1.1', letterSpacing: '-0.02em', fontWeight: '700' }], // 56px
+        'heading': ['2.5rem', { lineHeight: '1.2', letterSpacing: '-0.01em', fontWeight: '700' }], // 40px
+        'section': ['2rem', { lineHeight: '1.2', fontWeight: '600' }], // 32px
+        'subheading': ['1.5rem', { lineHeight: '1.4', fontWeight: '600' }], // 24px
+        'large': ['1.25rem', { lineHeight: '1.5', fontWeight: '500' }], // 20px
+        'body': ['1rem', { lineHeight: '1.6', fontWeight: '400' }], // 16px
+        'small': ['0.875rem', { lineHeight: '1.6', fontWeight: '400' }], // 14px
+        'caption': ['0.75rem', { lineHeight: '1.6', fontWeight: '500', letterSpacing: '0.05em' }], // 12px
+      },
+      fontWeight: {
+        regular: '400',
+        medium: '500',
+        semibold: '600',
+        bold: '700',
+        black: '800',
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',

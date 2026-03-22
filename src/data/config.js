@@ -10,11 +10,11 @@ export const config = {
   website: 'hodaltech.space',
   github: 'github.com/Hodal66',
   linkedin: 'linkedin.com/in/muheto-hodal-23311a211',
+  phone: '+250 782 439 775',
   yearsExp: '3+',
   projectsCompleted: '15+',
   technologies: '20+',
   clients: '10+',
-  // Removing studentId as requested
   domain: 'Software Engineering'
 };
 
@@ -92,7 +92,7 @@ export const projects = [
 This project was born from identifying a gap in Rwanda's professional development ecosystem. University students often struggle to find experienced mentors who can guide them through their career journey. IHUZE bridges this gap by providing a structured, technology-driven approach to mentorship.`,
     challenge: `The main challenges included building a scalable matching algorithm that considers multiple factors (industry, skills, availability, location), implementing real-time communication without compromising performance, and integrating Rwanda's complete administrative hierarchy (Provinces → Districts → Sectors → Cells → Villages) for location-based matching.`,
     solution: `I architected a microservices-ready backend with Spring Boot, implementing JWT-based authentication with refresh token rotation for security. The frontend uses React with Redux for state management, connected via WebSocket for real-time features. The matching algorithm uses a weighted scoring system considering 12 different compatibility factors.`,
-    image: 'fluent:people-community-24-filled',
+    image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=1200',
     gradient: 'from-indigo-600 to-violet-700',
     tech: ['Spring Boot', 'React', 'PostgreSQL', 'JWT Auth', 'WebSocket', 'Tailwind CSS', 'Redis', 'Docker'],
     architecture: [
@@ -144,7 +144,7 @@ This project was born from identifying a gap in Rwanda's professional developmen
 The project started as a need for a unified interface to manage multiple business operations. Instead of switching between different tools, this dashboard consolidates all essential functions into a single, intuitive interface.`,
     challenge: `The primary challenges were handling real-time data updates without overwhelming the UI, implementing complex data visualizations that remain performant with large datasets, and building a flexible theming system that could adapt to different brand requirements.`,
     solution: `I implemented a virtual scrolling system for large data tables, used React.memo and useMemo strategically to prevent unnecessary re-renders, and built a custom charting wrapper around Recharts with automatic data aggregation for performance. The theming system uses CSS custom properties with a context-based provider.`,
-    image: 'fluent:board-24-filled',
+    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1200',
     gradient: 'from-cyan-600 to-blue-700',
     tech: ['React', 'TypeScript', 'Redux Toolkit', 'Recharts', 'Material UI', 'REST API', 'Socket.io', 'Jest'],
     architecture: [
@@ -196,7 +196,7 @@ The project started as a need for a unified interface to manage multiple busines
 The environment was designed to mirror real-world corporate infrastructure, providing hands-on experience with enterprise-grade tools and security practices used by organizations worldwide.`,
     challenge: `Building a realistic enterprise environment with limited hardware resources required careful VM optimization. Integrating multiple security tools (pfSense, Wazuh, Suricata) while maintaining performance was challenging. Additionally, creating meaningful security rules and monitoring dashboards that provide actionable insights required extensive research.`,
     solution: `I implemented a resource-efficient VM allocation strategy, using nested virtualization where appropriate. Created custom integration scripts to correlate events across security tools. Developed a comprehensive documentation system with automated topology generation.`,
-    image: 'fluent:shield-check-24-filled',
+    image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc48?auto=format&fit=crop&q=80&w=1200',
     gradient: 'from-emerald-600 to-teal-700',
     tech: ['pfSense', 'Windows Server 2022', 'Active Directory', 'Wazuh SIEM', 'Suricata IDS', 'OpenVPN', 'NTOPng', 'VMware'],
     architecture: [
@@ -247,7 +247,7 @@ The environment was designed to mirror real-world corporate infrastructure, prov
 The service handles the complexity of Google's API, rate limits, and authentication, exposing a simple REST interface that any application can consume.`,
     challenge: `Google's API rate limits required implementing intelligent request queuing. Handling large spreadsheets (10,000+ rows) without timeouts needed streaming approaches. Maintaining data consistency during concurrent updates from multiple sources was complex.`,
     solution: `I implemented Bull Queue with Redis for request management, used streaming reads/writes for large datasets, and implemented optimistic locking with version tracking for concurrent updates. The service includes automatic retry with exponential backoff.`,
-    image: 'fluent:table-simple-24-filled',
+    image: 'https://images.unsplash.com/photo-1586281380117-5a60ae2050cc?auto=format&fit=crop&q=80&w=1200',
     gradient: 'from-green-600 to-emerald-700',
     tech: ['Node.js', 'Express', 'Google APIs', 'OAuth 2.0', 'Redis', 'Bull Queue', 'Jest', 'Docker'],
     architecture: [
@@ -298,7 +298,7 @@ The service handles the complexity of Google's API, rate limits, and authenticat
 Built with performance and user experience in mind, the application uses server-side rendering for SEO optimization and implements lazy loading for optimal user experience.`,
     challenge: `Aggregating results from multiple travel APIs with different response formats and latencies required careful architecture. Implementing real-time pricing that remains consistent through the booking flow was complex. Building a search experience that feels instant despite API delays needed creative solutions.`,
     solution: `I implemented a unified adapter pattern for different travel APIs, used Redis for price caching with TTL-based invalidation, and built a progressive search UI that shows results as they arrive. Payment flow uses idempotency keys to prevent double bookings.`,
-    image: 'fluent:airplane-24-filled',
+    image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&q=80&w=1200',
     gradient: 'from-sky-600 to-blue-700',
     tech: ['React', 'Next.js', 'Node.js', 'MongoDB', 'Stripe', 'Amadeus API', 'Redux', 'Redis'],
     architecture: [
@@ -349,7 +349,7 @@ Built with performance and user experience in mind, the application uses server-
 The platform includes interactive tutorials, progress tracking, and a project submission system for practical assessments. It was designed to provide a structured learning path from basics to job-ready skills.`,
     challenge: `Creating engaging learning content that caters to students with varying technical backgrounds was challenging. Building an assessment system that accurately evaluates practical skills (not just theory) required innovative approaches. Managing the platform while also teaching required efficient time management.`,
     solution: `I implemented adaptive learning paths that adjust based on assessment results, created practical project-based assessments with automated testing where possible, and built reusable content templates that reduced content creation time by 60%.`,
-    image: 'fluent:hat-graduation-24-filled',
+    image: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&q=80&w=1200',
     gradient: 'from-amber-600 to-orange-700',
     tech: ['HTML5', 'CSS3', 'JavaScript', 'PHP', 'MySQL', 'Bootstrap', 'jQuery', 'AJAX'],
     architecture: [

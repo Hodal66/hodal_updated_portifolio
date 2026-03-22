@@ -2,11 +2,14 @@ import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Icon } from '@iconify/react';
 import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Footer } from '../components';
 import authBg from '../assets/auth-side-logo.png';
 
 const AuthLayout = () => {
   const { isDark } = useTheme();
+  const { t } = useLanguage();
   const location = useLocation();
 
   return (
@@ -22,7 +25,7 @@ const AuthLayout = () => {
           }`}
         >
           <Icon icon="fluent:arrow-left-24-regular" className="w-5 h-5" />
-          Back to Home
+          {t('auth.backToHome')}
         </Link>
         
         {/* Animated Outlet */}

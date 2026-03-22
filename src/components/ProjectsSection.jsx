@@ -10,7 +10,16 @@ import { fetchProjects } from '../services/api';
 const ProjectCard = ({ project }) => {
   const navigate = useNavigate();
   const { isDark } = useTheme();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+
+  const getLocalizedField = (obj, field) => {
+    if (!obj || !field) return '';
+    if (language === 'en') return obj[field] || '';
+    
+    const langSuffix = language.charAt(0).toUpperCase() + language.slice(1);
+    const localizedKey = field + langSuffix;
+    return obj[localizedKey] || obj[field] || '';
+  };
 
   const getStatusClasses = () => {
     switch (project.status) {
@@ -54,7 +63,7 @@ const ProjectCard = ({ project }) => {
 
       <div className="flex items-center gap-3 mb-3 flex-wrap">
         <span className={`px-3 py-1 rounded-md text-xs font-medium ${isDark ? 'bg-primary-500/10 text-primary-300' : 'bg-primary-500/10 text-primary-600'}`}>
-          {project.category}
+          {getLocalizedField(project, 'category')}
         </span>
         <span className={`text-sm ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>{project.year}</span>
         {project.duration && (
@@ -65,12 +74,12 @@ const ProjectCard = ({ project }) => {
         )}
       </div>
 
-      <h3 className={`text-xl sm:text-2xl font-bold mb-2 leading-tight group-hover:text-primary-400 transition-colors ${isDark ? 'text-white' : 'text-slate-900'}`}>
-        {project.title}
+      <h3 className={`text-2xl sm:text-3xl font-black mb-2 leading-tight tracking-tighter group-hover:text-primary-400 transition-colors ${isDark ? 'text-white' : 'text-slate-900'}`}>
+        {getLocalizedField(project, 'title')}
       </h3>
 
-      <p className={`text-sm mb-4 ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>{project.subtitle}</p>
-      <p className={`text-sm mb-5 line-clamp-2 leading-relaxed ${isDark ? 'text-gray-500' : 'text-slate-500'}`}>{project.description}</p>
+      <p className={`text-sm mb-4 ${isDark ? 'text-gray-400' : 'text-slate-600'}`}>{getLocalizedField(project, 'subtitle')}</p>
+      <p className={`text-sm mb-5 line-clamp-2 leading-relaxed ${isDark ? 'text-gray-500' : 'text-slate-500'}`}>{getLocalizedField(project, 'description')}</p>
 
       <div className="flex flex-wrap gap-2 mb-5">
         {project.tech && project.tech.slice(0, 4).map((t, i) => (
@@ -86,7 +95,7 @@ const ProjectCard = ({ project }) => {
       </div>
 
       <div className={`flex items-center justify-between pt-5 border-t ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
-        <span className={`text-sm ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>{project.role}</span>
+        <span className={`text-sm ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>{getLocalizedField(project, 'role')}</span>
         <span className="text-primary-400 text-sm font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
           {t('projects.viewCaseStudy')} <span>→</span>
         </span>

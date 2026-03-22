@@ -2,15 +2,18 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { Icon } from '@iconify/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getNotifications, markNotificationRead, markAllNotificationsRead } from '../../services/api';
 
 const Navbar = ({ user }) => {
   const { isDark, toggleTheme } = useTheme();
+  const { language, changeLanguage, languages } = useLanguage();
   const { logout } = useAuth();
   const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showLangDropdown, setShowLangDropdown] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -33,10 +36,14 @@ const Navbar = ({ user }) => {
     const handleClick = (e) => {
       if (profileRef.current && !profileRef.current.contains(e.target)) setShowProfileMenu(false);
       if (notifRef.current && !notifRef.current.contains(e.target)) setShowNotifications(false);
+      if (langRef.current && !langRef.current.contains(e.target)) setShowLangDropdown(false);
     };
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
+
+  const langRef = useRef(null);
+  const currentLang = languages.find(l => l.code === language);
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -86,6 +93,47 @@ const Navbar = ({ user }) => {
         >
           <Icon icon={isDark ? 'fluent:weather-sunny-24-regular' : 'fluent:weather-moon-16-regular'} width="24" />
         </button>
+
+        {/* Language Selector */}
+        <div className="relative" ref={langRef}>
+          <button
+            onClick={() => { setShowLangDropdown(!showLangDropdown); setShowNotifications(false); setShowProfileMenu(false); }}
+            className={`p-2 rounded-xl hover:bg-primary-500/10 transition-colors flex items-center justify-center ${isDark ? 'text-slate-400' : 'text-slate-500'}`}
+          >
+            <img src={currentLang?.flag} alt={currentLang?.name} className="w-6 h-auto rounded-sm shadow-sm" />
+          </button>
+
+          <AnimatePresence>
+            {showLangDropdown && (
+              <motion.div
+                initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                transition={{ duration: 0.18 }}
+                className={`absolute right-0 mt-2 w-44 rounded-2xl border shadow-2xl z-50 overflow-hidden ${
+                  isDark ? 'bg-slate-800 border-white/10' : 'bg-white border-slate-200'
+                }`}
+              >
+                <div className="p-2 flex flex-col gap-1">
+                  {languages.map((lang) => (
+                    <button
+                      key={lang.code}
+                      onClick={() => { changeLanguage(lang.code); setShowLangDropdown(false); }}
+                      className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
+                        language === lang.code
+                          ? 'bg-primary-500/10 text-primary-400 font-bold'
+                          : isDark ? 'text-slate-300 hover:bg-white/5' : 'text-slate-700 hover:bg-slate-50'
+                      }`}
+                    >
+                      <img src={lang.flag} alt={lang.name} className="w-5 h-auto rounded-sm" />
+                      <span>{lang.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         {/* Notifications */}
         <div className="relative" ref={notifRef}>

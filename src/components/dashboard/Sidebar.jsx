@@ -1,22 +1,26 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Icon } from '@iconify/react';
+import logo from '../../assets/HodalTechLogo.png';
 
 const Sidebar = ({ isDark, userRole }) => {
+  const { t } = useLanguage();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
 
   const menuItems = [
-    { name: 'Overview', path: '/dashboard', icon: 'fluent:grid-24-regular', roles: ['user', 'admin'] },
-    { name: 'Users', path: '/dashboard/users', icon: 'fluent:people-24-regular', roles: ['admin'] },
-    { name: 'Analytics', path: '/dashboard/analytics', icon: 'fluent:chart-area-24-regular', roles: ['admin'] },
-    { name: 'Projects', path: '/dashboard/projects', icon: 'fluent:briefcase-24-regular', roles: ['user', 'admin'] },
-    { name: 'Messages', path: '/dashboard/messages', icon: 'fluent:chat-24-regular', roles: ['user', 'admin'] },
-    { name: 'Meetings', path: '/dashboard/meetings', icon: 'fluent:video-24-regular', roles: ['user', 'admin'] },
-    { name: 'Contact Messages', path: '/dashboard/contact-messages', icon: 'fluent:mail-24-regular', roles: ['admin'] },
-    { name: 'Files', path: '/dashboard/files', icon: 'fluent:folder-24-regular', roles: ['user', 'admin'] },
-    { name: 'Settings', path: '/dashboard/settings', icon: 'fluent:settings-24-regular', roles: ['user', 'admin'] },
+    { key: 'backToWebsite', path: '/', icon: 'fluent:home-24-regular', roles: ['user', 'admin'] },
+    { key: 'overview', path: '/dashboard', icon: 'fluent:grid-24-regular', roles: ['user', 'admin'] },
+    { key: 'users', path: '/dashboard/users', icon: 'fluent:people-24-regular', roles: ['admin'] },
+    { key: 'analytics', path: '/dashboard/analytics', icon: 'fluent:chart-area-24-regular', roles: ['admin'] },
+    { key: 'projects', path: '/dashboard/projects', icon: 'fluent:briefcase-24-regular', roles: ['user', 'admin'] },
+    { key: 'messages', path: '/dashboard/messages', icon: 'fluent:chat-24-regular', roles: ['user', 'admin'] },
+    { key: 'meetings', path: '/dashboard/meetings', icon: 'fluent:video-24-regular', roles: ['user', 'admin'] },
+    { key: 'contactMessages', path: '/dashboard/contact-messages', icon: 'fluent:mail-24-regular', roles: ['admin'] },
+    { key: 'files', path: '/dashboard/files', icon: 'fluent:folder-24-regular', roles: ['user', 'admin'] },
+    { key: 'settings', path: '/dashboard/settings', icon: 'fluent:settings-24-regular', roles: ['user', 'admin'] },
   ];
 
   const filteredItems = menuItems.filter(item => item.roles.includes(userRole));
@@ -29,18 +33,20 @@ const Sidebar = ({ isDark, userRole }) => {
         isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'
       } flex flex-col`}
     >
-      <div className="p-6 flex items-center justify-between overflow-hidden">
+      <div className="p-3 flex items-center justify-between overflow-hidden">
         {!isCollapsed && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex items-center gap-3"
-          >
-            <div className="w-8 h-8 rounded-lg bg-primary-500 flex items-center justify-center text-white">
-              <Icon icon="fluent:flash-24-filled" width="20" />
-            </div>
-            <span className={`font-bold text-xl ${isDark ? 'text-white' : 'text-slate-900'}`}>HodalTech</span>
-          </motion.div>
+          <Link to="/" className="flex items-center gap-4 group">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex items-center gap-4"
+            >
+              <div className="w-10 h-10 flex items-center justify-center transition-transform group-hover:scale-110">
+                <img src={logo} alt="HodalTech" className="w-full h-full object-contain" />
+              </div>
+              <span className={`font-black text-2xl tracking-tighter leading-none ${isDark ? 'text-white' : 'text-slate-900'} group-hover:text-primary-500 transition-colors`}>HodalTech</span>
+            </motion.div>
+          </Link>
         )}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
@@ -71,7 +77,7 @@ const Sidebar = ({ isDark, userRole }) => {
                     animate={{ opacity: 1, x: 0 }}
                     className="font-medium whitespace-nowrap"
                   >
-                    {item.name}
+                    {t('nav.' + item.key)}
                   </motion.span>
                 )}
               </Link>

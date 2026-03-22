@@ -18,7 +18,7 @@ const HeroSection = ({ setActiveSection }) => {
           <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
           <span className="text-primary-400 text-sm font-medium">{t('hero.available')}</span>
           <span className={isDark ? 'text-gray-600' : 'text-slate-400'}>•</span>
-          <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>{t('Tel: +25078 2439 775')}</span>
+          <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-slate-500'}`}>{t('hero.tel')}: {config.phone}</span>
         </div>
 
         <div className="mb-8">
@@ -29,8 +29,8 @@ const HeroSection = ({ setActiveSection }) => {
           </div>
         </div>
 
-        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-4">
-          <span className={`bg-clip-text text-transparent ${isDark ? 'bg-gradient-to-r from-white via-gray-100 to-gray-300' : 'bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700'}`}>
+        <h1 className="text-4xl sm:text-5xl md:text-hero font-display font-bold mb-4">
+          <span className={`bg-clip-text text-transparent tracking-tighter ${isDark ? 'bg-gradient-to-r from-white via-gray-100 to-gray-300' : 'bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700'}`}>
             {config.name}
           </span>
         </h1>

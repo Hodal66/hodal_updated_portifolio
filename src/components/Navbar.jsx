@@ -53,10 +53,10 @@ const Navbar = ({ activeSection, setActiveSection }) => {
             : 'bg-white/95 backdrop-blur-xl border-b border-slate-200'
           : 'bg-transparent'
       }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-1 flex justify-between items-center">
          <Link to="/">  
-          <div className="flex items-baseline gap-0.5">
-           <img src={logo} alt="Muheto Hodal" className="h-10 w-auto" />
+          <div className="flex items-center">
+           <img src={logo} alt="Muheto Hodal" className="h-14 md:h-20 w-auto object-contain transition-transform hover:scale-105 drop-shadow-2xl" />
           </div>
          </Link>
           <div className="hidden md:flex items-center gap-1">
@@ -76,13 +76,12 @@ const Navbar = ({ activeSection, setActiveSection }) => {
             <div className="relative" ref={langDropdownRef}>
               <button
                 onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
-                className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all ${
+                className={`flex items-center gap-2 px-3 py-2 rounded-xl text-lg font-medium transition-all ${
                   isDark ? 'bg-white/5 hover:bg-white/10 text-gray-300' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                 }`}
               >
-                <span>{currentLang?.flag}</span>
-                <span className="hidden lg:inline">{currentLang?.name}</span>
-                <svg className={`w-4 h-4 transition-transform ${isLangDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <img src={currentLang?.flag} alt={currentLang?.name} className="w-6 h-auto rounded-sm object-cover" />
+                <svg className={`w-4 h-4 opacity-50 transition-transform ${isLangDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
@@ -101,7 +100,7 @@ const Navbar = ({ activeSection, setActiveSection }) => {
                           : isDark ? 'text-gray-300 hover:bg-white/5' : 'text-slate-700 hover:bg-slate-50'
                       }`}
                     >
-                      <span className="text-lg">{lang.flag}</span>
+                      <img src={lang.flag} alt={lang.name} className="w-6 h-auto rounded-sm object-cover" />
                       <span className="font-medium">{lang.name}</span>
                       {language === lang.code && <span className="ml-auto text-primary-400">✓</span>}
                     </button>
@@ -175,18 +174,17 @@ const Navbar = ({ activeSection, setActiveSection }) => {
             <p className={`text-xs font-semibold mb-3 ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>Language</p>
             <div className="grid grid-cols-2 gap-2 mb-4">
               {languages.map((lang) => (
-                <button
-                  key={lang.code}
-                  onClick={() => changeLanguage(lang.code)}
-                  className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                    language === lang.code
-                      ? 'bg-primary-500/10 text-primary-400 border border-primary-500/30'
-                      : isDark ? 'bg-white/5 text-gray-300 hover:bg-white/10' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  <span>{lang.flag}</span>
-                  <span className="text-xs">{lang.code.toUpperCase()}</span>
-                </button>
+                  <button
+                    key={lang.code}
+                    onClick={() => changeLanguage(lang.code)}
+                    className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-xl font-medium transition-all ${
+                      language === lang.code
+                        ? 'bg-primary-500/10 text-primary-400 border border-primary-500/30'
+                        : isDark ? 'bg-white/5 text-gray-300 hover:bg-white/10' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    <img src={lang.flag} alt={lang.name} className="w-6 h-auto rounded-sm shadow-sm" />
+                  </button>
               ))}
             </div>
 
