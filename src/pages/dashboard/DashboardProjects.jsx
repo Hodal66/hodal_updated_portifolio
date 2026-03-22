@@ -401,9 +401,10 @@ const DashboardProjects = () => {
     setLoading(true);
     try {
       const data = await fetchProjects();
-      setProjects(data);
+      setProjects(data?.projects || []);
+      console.log(`Loaded ${data?.total || 0} projects into the vault.`);
     } catch (err) {
-      console.error(err);
+      console.error('Failed to retrieve project vault:', err);
     } finally {
       setLoading(false);
     }
@@ -435,7 +436,9 @@ const DashboardProjects = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <h1 className={`text-3xl font-black mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>Master Project Vault</h1>
-          <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Manage, refine, and deploy new entities to your portfolio ecosystem.</p>
+          <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+            {loading ? 'Consulting the records...' : `${projects.length} entities secured in the vault.`}
+          </p>
         </div>
         <button 
           onClick={() => { setSelectedProject(null); setIsModalOpen(true); }}
