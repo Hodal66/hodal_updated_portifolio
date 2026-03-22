@@ -86,20 +86,6 @@ const Sidebar = ({ isDark, userRole }) => {
         </ul>
       </nav>
 
-      {!isCollapsed && (
-        <div className="p-6 border-t border-white/10 mx-4 mb-4">
-          <div className={`p-4 rounded-2xl ${isDark ? 'bg-white/5' : 'bg-slate-50'}`}>
-            <p className={`text-xs font-semibold uppercase mb-2 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Pro Plan</p>
-            <div className="flex items-center justify-between mb-3">
-              <span className={`text-sm font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>92% Usage</span>
-              <span className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Update soon</span>
-            </div>
-            <div className="w-full h-2 bg-slate-200 dark:bg-white/10 rounded-full overflow-hidden">
-              <div className="h-full bg-primary-500 w-[92%]" />
-            </div>
-          </div>
-        </div>
-      )}
     </motion.aside>
   );
 };
