@@ -11,29 +11,50 @@ import ErrorBoundary from './components/ErrorBoundary';
 import AuthLayout from './layouts/AuthLayout';
 import DashboardLayout from './layouts/DashboardLayout';
 
-// ─── Public Pages (Lazy) ──────────────────────────────────────
-const HomePage = lazy(() => import('./pages/HomePage'));
-const ProjectDetailPage = lazy(() => import('./pages/ProjectDetailPage'));
+/**
+ * 🚀 High-Reliability Lazy Loading
+ * Catches 'Failed to fetch dynamically imported module' errors which happen
+ * when a user's browser has an old manifest after a new deployment.
+ */
+const lazyWithRetry = (componentImport) =>
+  lazy(async () => {
+    const pageHasBeenForceRefreshed = sessionStorage.getItem('page-has-been-force-refreshed');
+    try {
+      const component = await componentImport();
+      sessionStorage.setItem('page-has-been-force-refreshed', 'false');
+      return component;
+    } catch (error) {
+      if (!pageHasBeenForceRefreshed || pageHasBeenForceRefreshed === 'false') {
+        sessionStorage.setItem('page-has-been-force-refreshed', 'true');
+        return window.location.reload();
+      }
+      throw error; // Re-throw if refresh didn't fix it
+    }
+  });
 
-// ─── Auth Pages (Lazy) ────────────────────────────────────────
-const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
-const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'));
-const OtpVerificationPage = lazy(() => import('./pages/auth/OtpVerificationPage'));
-const ForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage'));
-const ResetPasswordPage = lazy(() => import('./pages/auth/ResetPasswordPage'));
+// ─── Public Pages ─────────────────────────────────────────────
+const HomePage = lazyWithRetry(() => import('./pages/HomePage'));
+const ProjectDetailPage = lazyWithRetry(() => import('./pages/ProjectDetailPage'));
 
-// ─── Dashboard Pages (Lazy) ───────────────────────────────────
-const DashboardOverview = lazy(() => import('./pages/dashboard/DashboardOverview'));
-const DashboardUsers = lazy(() => import('./pages/dashboard/DashboardUsers'));
-const DashboardProjects = lazy(() => import('./pages/dashboard/DashboardProjects'));
-const DashboardSettings = lazy(() => import('./pages/dashboard/DashboardSettings'));
-const DashboardNotifications = lazy(() => import('./pages/dashboard/DashboardNotifications'));
-const DashboardAnalytics = lazy(() => import('./pages/dashboard/DashboardAnalytics'));
-const DashboardFiles = lazy(() => import('./pages/dashboard/DashboardFiles'));
-const DashboardMessages = lazy(() => import('./pages/dashboard/DashboardMessages'));
-const DashboardMeetings = lazy(() => import('./pages/dashboard/DashboardMeetings'));
-const DashboardContactMessages = lazy(() => import('./pages/dashboard/DashboardContactMessages'));
-const MeetingRoom = lazy(() => import('./pages/dashboard/MeetingRoom'));
+// ─── Auth Pages ───────────────────────────────────────────────
+const LoginPage = lazyWithRetry(() => import('./pages/auth/LoginPage'));
+const RegisterPage = lazyWithRetry(() => import('./pages/auth/RegisterPage'));
+const OtpVerificationPage = lazyWithRetry(() => import('./pages/auth/OtpVerificationPage'));
+const ForgotPasswordPage = lazyWithRetry(() => import('./pages/auth/ForgotPasswordPage'));
+const ResetPasswordPage = lazyWithRetry(() => import('./pages/auth/ResetPasswordPage'));
+
+// ─── Dashboard Pages ──────────────────────────────────────────
+const DashboardOverview = lazyWithRetry(() => import('./pages/dashboard/DashboardOverview'));
+const DashboardUsers = lazyWithRetry(() => import('./pages/dashboard/DashboardUsers'));
+const DashboardProjects = lazyWithRetry(() => import('./pages/dashboard/DashboardProjects'));
+const DashboardSettings = lazyWithRetry(() => import('./pages/dashboard/DashboardSettings'));
+const DashboardNotifications = lazyWithRetry(() => import('./pages/dashboard/DashboardNotifications'));
+const DashboardAnalytics = lazyWithRetry(() => import('./pages/dashboard/DashboardAnalytics'));
+const DashboardFiles = lazyWithRetry(() => import('./pages/dashboard/DashboardFiles'));
+const DashboardMessages = lazyWithRetry(() => import('./pages/dashboard/DashboardMessages'));
+const DashboardMeetings = lazyWithRetry(() => import('./pages/dashboard/DashboardMeetings'));
+const DashboardContactMessages = lazyWithRetry(() => import('./pages/dashboard/DashboardContactMessages'));
+const MeetingRoom = lazyWithRetry(() => import('./pages/dashboard/MeetingRoom'));
 
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center bg-slate-900">
